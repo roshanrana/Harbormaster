@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -150,7 +151,7 @@ func applyOne(ctx context.Context, db *sql.DB, m Migration) error {
 func Rollback(ctx context.Context, db *sql.DB) (version int, err error) {
 	row := db.QueryRowContext(ctx, `SELECT version FROM schema_migration ORDER BY version DESC LIMIT 1`)
 	if err := row.Scan(&version); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return 0, nil
 		}
 		return 0, fmt.Errorf("store: read latest migration: %w", err)

@@ -47,8 +47,12 @@ CREATE TABLE IF NOT EXISTS audit_record (
     at            TIMESTAMPTZ NOT NULL,
     component     TEXT        NOT NULL,
     decision_type TEXT        NOT NULL,
-    inputs        JSONB       NOT NULL DEFAULT '{}'::JSONB,
-    outcome       JSONB       NOT NULL DEFAULT '{}'::JSONB,
+    -- TEXT rather than JSONB on purpose. The record hash covers these exact
+    -- bytes; JSONB normalises key order and whitespace on storage, so reading
+    -- one back would produce a different string and a spurious chain break.
+    -- Queryability is not worth a verifier that cries wolf.
+    inputs        TEXT        NOT NULL DEFAULT '{}',
+    outcome       TEXT        NOT NULL DEFAULT '{}',
     actor         TEXT        NOT NULL DEFAULT 'system',
     prev_hash     TEXT        NOT NULL DEFAULT '',
     record_hash   TEXT        NOT NULL

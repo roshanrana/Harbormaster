@@ -1,15 +1,16 @@
 # STATE — Harbormaster
 
-**Phase:** 4 — Guardrails
-**Status:** W1-W3 complete; guardrails gate green
+**Phase:** 5 — Build
+**Status:** M0 in progress; Portwatch complete, Inspector mapping core complete
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** Guardrails complete. All nine W1-W3 tasks done. 41 tests green
-  (27 Python, 14 Go across 5 packages), `make check` offline in ~40s.
-- **Next:** W4 / M0 walking skeleton — T-010 portwatch, T-011 inspector,
-  T-012 berthmaster, T-013 recon stub, then T-014 end-to-end.
+- **Now:** Portwatch end to end (scanner, object store, dedupe, audit chain,
+  service binary). Inspector's canonical schema, alias dictionary, delimited
+  parser and price disambiguation all done. 86 Python tests + 8 Go packages green.
+- **Next:** finish M0 — Inspector emit/main wiring, T-012 berthmaster slot
+  machine, T-013 recon stub, T-014 end-to-end.
 
 ## Decisions taken at intake
 
@@ -48,6 +49,11 @@
 | 2026-08-31 | T-008 | Bus seam both languages; per-key ordering + masking parity proven |
 | 2026-08-31 | T-007 | Migrations + rollback, 6 tests green against real Postgres |
 | 2026-08-31 | T-005 | Compose + Dockerfiles authored; ADR-020 moves topics to infra |
+| 2026-08-31 | T-018 | ObjectStore + fs adapter; traversal rejected, partial writes invisible |
+| 2026-08-31 | T-010/015/016 | Polling scanner, quiet window, dedupe verdicts, Portwatch binary |
+| 2026-08-31 | T-037 | Hash-chained audit; tamper and deletion both detected |
+| 2026-08-31 | T-028 | Canonical schema + 200-entry alias dictionary across 8 venues |
+| 2026-08-31 | T-031 | Price disambiguation: vocabulary, preference, structure, arithmetic |
 
 ## Blockers
 
