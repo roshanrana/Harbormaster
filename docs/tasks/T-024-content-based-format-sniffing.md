@@ -1,6 +1,6 @@
 # T-024 — Content-based format sniffing
 
-**Milestone:** M2  **Depends on:** T-019..T-023  **Status:** `pending`
+**Milestone:** M2  **Depends on:** T-019..T-023  **Status:** `done` — validated-here
 
 ## Scope
 Only these paths may be touched: `python/src/inspector/sniff.py`
@@ -9,10 +9,10 @@ Only these paths may be touched: `python/src/inspector/sniff.py`
 Decide format from content, never extension. Each parser reports a sniff confidence; highest wins.
 
 ## Acceptance criteria
-- [ ] A CSV named .txt is detected as CSV
-- [ ] A FIXML file named .xml is detected as FIXML, not generic XML
-- [ ] An xlsx renamed .csv is detected as EXCEL by magic bytes
-- [ ] Ambiguity below threshold routes to quarantine, not a guess
+- [x] A CSV named .txt is detected as CSV
+- [x] A FIXML file named .xml is detected as FIXML, not generic XML
+- [x] An xlsx renamed .csv is detected as EXCEL by magic bytes
+- [x] Ambiguity below threshold routes to quarantine, not a guess
 
 ## Validation
 ```
@@ -23,4 +23,4 @@ make check
 FR-17 — read only what the criteria above require.
 
 ## Handoff notes
-_Filled in on completion. Max 10 lines._
+Content-based format sniffing with per-parser confidence; a CSV named .txt still classifies as CSV. Unrecognised content raises rather than guessing.

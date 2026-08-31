@@ -1,15 +1,16 @@
 # STATE — Harbormaster
 
 **Phase:** 5 — Build
-**Status:** M0 nearly closed; only Inspector wiring remains
+**Status:** M0 complete; 178 Python tests + 10 Go packages green
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** Portwatch, registry, slot machine, Berthmaster and the recon stub are
-  all complete and tested. 94 Python tests + 10 Go packages green.
-- **Next:** Inspector wiring (sniff, attribution, value-date resolution, emit,
-  main) closes M0, then T-014 end-to-end.
+- **Now:** M0 walking skeleton complete. A CSV lands, is attributed, has its
+  true value date resolved, columns mapped with provenance, written as typed
+  Parquet, paired into a slot and dispatched as a berth assignment.
+- **Next:** M2 parser breadth (Excel, XML, FIXML, email, JSON), then the
+  corpus generator pulled forward to W6, then T-014 cross-language e2e.
 
 ## Decisions taken at intake
 
@@ -56,6 +57,10 @@
 | 2026-08-31 | T-025 | Registry: 6 clients, 4 calendars, strict validation, business-day maths |
 | 2026-08-31 | T-012/033/034/035 | Slot machine, late window, supersession, missing alerts, Berthmaster |
 | 2026-08-31 | T-013 | Recon stub with break report; null never treated as zero |
+| 2026-08-31 | T-027 | Value-date resolver: 3 sources, content precedence, business-day rolling |
+| 2026-08-31 | T-026 | Attribution: agreement raises confidence, conflict quarantines |
+| 2026-08-31 | T-032 | Weighted confidence, per-domain required fields, specific reasons |
+| 2026-08-31 | T-011/024/036 | Inspector pipeline, content sniffing, multi-date splitting |
 
 ## Blockers
 

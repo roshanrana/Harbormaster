@@ -48,6 +48,11 @@ extend-exclude = ["src/harbormaster"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
 
+[tool.ruff.lint.per-file-ignores]
+# Fixture data mirrors real file layouts; wrapping a CSV header row to satisfy
+# a line limit would make the fixture less readable, not more.
+"tests/**" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
