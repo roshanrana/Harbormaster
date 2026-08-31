@@ -1,0 +1,13 @@
+version: v2
+managed:
+  enabled: false
+plugins:
+  - local: protoc-gen-go
+    out: go/gen
+    opt: module=harbormaster.dev/hm/gen
+  - protoc_builtin: python
+    out: python/src
+  - protoc_builtin: pyi
+    out: python/src
+inputs:
+  - directory: proto

@@ -1,0 +1,21 @@
+# Go
+go.work
+go.work.sum
+/bin/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Runtime state
+data/
+logs/
+*.parquet
+!corpus/**/*.parquet
+
+# Env
+.env

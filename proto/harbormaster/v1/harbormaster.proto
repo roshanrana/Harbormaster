@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package harbormaster.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "harbormaster.dev/hm/gen/hmv1;hmv1";
+
+// -----------------------------------------------------------------------------
+// Enums. Field numbers and enum values are FROZEN (LLD section 2.1).
+// -----------------------------------------------------------------------------
+
+enum SourceFormat {
+  SOURCE_FORMAT_UNSPECIFIED = 0;
+  SOURCE_FORMAT_CSV = 1;
+  SOURCE_FORMAT_EXCEL = 2;
+  SOURCE_FORMAT_XML = 3;
+  SOURCE_FORMAT_FIXML = 4;
+  SOURCE_FORMAT_EMAIL_TEXT = 5;
+  SOURCE_FORMAT_JSON = 6;
+}
+
+enum ProductDomain {
+  PRODUCT_DOMAIN_UNSPECIFIED = 0;
+  PRODUCT_DOMAIN_TRADE = 1;
+  PRODUCT_DOMAIN_POSITION = 2;
+  PRODUCT_DOMAIN_CASH = 3;
+  PRODUCT_DOMAIN_COLLATERAL = 4;
+}
+
+enum ReconSide {
+  RECON_SIDE_UNSPECIFIED = 0;
+  RECON_SIDE_INTERNAL_GL = 1;
+  RECON_SIDE_EXTERNAL_CLIENT = 2;
+}
+
+// How a single source field was resolved onto a canonical field.
+enum ResolutionTier {
+  RESOLUTION_TIER_UNSPECIFIED = 0;
+  RESOLUTION_TIER_ALIAS = 1;       // deterministic dictionary
+  RESOLUTION_TIER_LOCAL = 2;       // fuzzy + embedding
+  RESOLUTION_TIER_LLM = 3;         // model adjudication
+  RESOLUTION_TIER_HUMAN = 4;       // reviewer decision
+  RESOLUTION_TIER_UNRESOLVED = 5;
+}
+
+enum SlotState {
+  SLOT_STATE_UNSPECIFIED = 0;
+  SLOT_STATE_OPEN = 1;
+  SLOT_STATE_PARTIAL = 2;
+  SLOT_STATE_ASSIGNED = 3;
+  SLOT_STATE_SUPERSEDED = 4;
+  SLOT_STATE_MISSING = 5;
+}
+
+enum ArrivalDisposition {
+  ARRIVAL_DISPOSITION_UNSPECIFIED = 0;
+  ARRIVAL_DISPOSITION_DISPATCHED = 1;
+  ARRIVAL_DISPOSITION_QUARANTINED = 2;
+  ARRIVAL_DISPOSITION_REJECTED = 3;
+  ARRIVAL_DISPOSITION_SUPPRESSED_DUPLICATE = 4;
+}
+
+// -----------------------------------------------------------------------------
+// Topic hm.arrivals.raw
+// -----------------------------------------------------------------------------
+
+message ArrivalRaw {
+  string arrival_id = 1;                        // ULID, monotonic
+  google.protobuf.Timestamp detected_at = 2;    // UTC
+  string ingress = 3;                           // FTP | QUEUE
+  string uri = 4;                               // object-store URI of stored payload
+  string original_name = 5;                     // filename or queue message id
+  int64 size_bytes = 6;
+  string content_sha256 = 7;                    // lowercase hex
+  string landing_dir = 8;
+  int64 stability_ms = 9;                       // quiescent duration before emit
+}
+
+// -----------------------------------------------------------------------------
+// Topic hm.arrivals.classified
+// -----------------------------------------------------------------------------
+
+// Why a value date was chosen, and what disagreed. Never collapse this to a
+// single date: the disagreement is itself operationally significant (FR-12).
+message ValueDateResolution {
+  string resolved = 1;                  // YYYY-MM-DD
+  string from_filename = 2;             // empty when the filename carried no date
+  repeated string from_content = 3;
+  string from_arrival = 4;
+  string method = 5;                    // CONTENT_EXPLICIT | CONTENT_INFERRED |
+                                        // FILENAME | ARRIVAL_MINUS_CALENDAR |
+                                        // LLM_ADJUDICATED | HUMAN
+  double confidence = 6;
+  bool mismatch_flagged = 7;
+  string calendar_id = 8;
+  string notes = 9;
+}
+
+// One source-field to canonical-field decision, with its provenance.
+// A mapping without evidence is a defect (FR-24).
+message FieldMapping {
+  string source_field = 1;              // column header, XPath, or FIX tag
+  string canonical_field = 2;
+  ResolutionTier tier = 3;
+  double confidence = 4;
+  string evidence = 5;                  // matched alias, similarity score, or rationale
+}
+
+message ArrivalClassified {
+  string arrival_id = 1;
+  google.protobuf.Timestamp classified_at = 2;
+  SourceFormat format = 3;
+  string source_hint = 4;               // venue, e.g. CME, EUREX
+  string client_id = 5;
+  double client_confidence = 6;
+  repeated string account_ids = 7;      // masked at serialisation (ADR-011)
+  ProductDomain domain = 8;
+  ReconSide recon_side = 9;
+  ValueDateResolution value_date = 10;
+  int64 row_count = 11;
+  repeated FieldMapping field_mappings = 12;
+  string canonical_uri = 13;            // Parquet output
+  double overall_confidence = 14;
+  ArrivalDisposition disposition = 15;
+  repeated string review_reasons = 16;
+  string template_fingerprint = 17;     // ordered hash of header set + client
+  int32 sub_batch_index = 18;           // multi-date split (FR-16)
+  int32 sub_batch_total = 19;
+}
+
+// -----------------------------------------------------------------------------
+// Topic hm.berth.assigned / hm.berth.superseded
+// -----------------------------------------------------------------------------
+
+message SideRef {
+  string arrival_id = 1;
+  string canonical_uri = 2;
+  int64 row_count = 3;
+}
+
+message BerthAssigned {
+  string assignment_id = 1;
+  google.protobuf.Timestamp emitted_at = 2;
+  string client_id = 3;
+  ProductDomain domain = 4;
+  string value_date = 5;                // YYYY-MM-DD
+  SideRef side_1 = 6;                   // internal GL
+  SideRef side_2 = 7;                   // external client
+  string expectation_id = 8;
+  double confidence = 9;
+  string supersedes = 10;               // prior assignment_id, empty if none
+  string notes = 11;
+}
+
+message BerthSuperseded {
+  string assignment_id = 1;             // the assignment being voided
+  string superseded_by = 2;             // arrival_id that triggered it
+  string reason = 3;
+  google.protobuf.Timestamp emitted_at = 4;
+}
+
+// -----------------------------------------------------------------------------
+// Topic hm.alerts.missing
+// -----------------------------------------------------------------------------
+
+message MissingFileAlert {
+  string client_id = 1;
+  ProductDomain domain = 2;
+  string value_date = 3;
+  string expectation_id = 4;
+  ReconSide missing_side = 5;
+  google.protobuf.Timestamp deadline = 6;
+  google.protobuf.Timestamp emitted_at = 7;
+}
+
+// -----------------------------------------------------------------------------
+// Topic hm.review.decisions
+// -----------------------------------------------------------------------------
+
+message ReviewDecision {
+  string arrival_id = 1;
+  string reviewer = 2;
+  string decision = 3;                  // APPROVE | CORRECT | REJECT
+  string corrected_client_id = 4;
+  string corrected_value_date = 5;
+  repeated FieldMapping corrected_mappings = 6;
+  bool promote_to_dictionary = 7;       // FR-28
+  string notes = 8;
+  google.protobuf.Timestamp decided_at = 9;
+}
+
+// -----------------------------------------------------------------------------
+// Topic hm.audit.decisions
+//
+// Per-arrival hash chain. record_hash covers every preceding field including
+// prev_hash, so any edit to any record breaks every record after it.
+// -----------------------------------------------------------------------------
+
+message AuditRecord {
+  string record_id = 1;
+  string arrival_id = 2;
+  google.protobuf.Timestamp at = 3;
+  string component = 4;                 // portwatch | inspector | berthmaster | controlplane
+  string decision_type = 5;
+  string inputs_json = 6;
+  string outcome_json = 7;
+  string actor = 8;                     // "system" or a user id
+  string prev_hash = 9;
+  string record_hash = 10;
+}
