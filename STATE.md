@@ -1,15 +1,15 @@
 # STATE — Harbormaster
 
 **Phase:** 4 — Guardrails
-**Status:** `make check` green; W1-W3 partially complete
+**Status:** W1-W3 complete; guardrails gate green
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** Guardrails gate passing. T-001, T-002, T-003, T-004, T-006, T-009 done
-  and validated here. Contracts frozen and proven across Go and Python.
-- **Next:** T-005 (Compose), T-007 (migrations), T-008 (bus + structured logging)
-  to close W1-W3, then M0 walking skeleton (W4-W5).
+- **Now:** Guardrails complete. All nine W1-W3 tasks done. 41 tests green
+  (27 Python, 14 Go across 5 packages), `make check` offline in ~40s.
+- **Next:** W4 / M0 walking skeleton — T-010 portwatch, T-011 inspector,
+  T-012 berthmaster, T-013 recon stub, then T-014 end-to-end.
 
 ## Decisions taken at intake
 
@@ -45,6 +45,9 @@
 | 2026-08-31 | T-004 | Proto frozen, codegen committed, cross-language round-trip green |
 | 2026-08-31 | T-009 | Masking hook + 6 cases; short-identifier leak case covered |
 | 2026-08-31 | T-006 | `make check` green offline; CI runs the same target verbatim |
+| 2026-08-31 | T-008 | Bus seam both languages; per-key ordering + masking parity proven |
+| 2026-08-31 | T-007 | Migrations + rollback, 6 tests green against real Postgres |
+| 2026-08-31 | T-005 | Compose + Dockerfiles authored; ADR-020 moves topics to infra |
 
 ## Blockers
 

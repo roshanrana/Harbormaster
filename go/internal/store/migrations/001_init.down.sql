@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS review;
+DROP TABLE IF EXISTS template_mapping;
+DROP TABLE IF EXISTS audit_record;
+DROP TABLE IF EXISTS slot;
+DROP TABLE IF EXISTS arrival;

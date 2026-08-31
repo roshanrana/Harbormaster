@@ -1,0 +1,12 @@
+.git
+data
+logs
+docs
+corpus/out
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+go/go.work
+go/go.work.sum

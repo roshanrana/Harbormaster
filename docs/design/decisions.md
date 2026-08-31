@@ -184,3 +184,17 @@ Generated protobuf code compiles via a gitignored `go.work` override in this
 environment only; `go.mod` stays pristine.
 **Consequences:** A small, auditable dependency tree, which is a virtue in this
 domain regardless of what forced it. Cost: some conveniences hand-rolled.
+
+### ADR-020 — Topics provisioned by infrastructure, not by the application
+**Phase:** 4
+**Context:** The Go admin client (`kadm`) pulls `golang.org/x/crypto`, which is
+blocked here. That prompted a review of whether the application should be
+creating topics at all.
+**Decision:** Topics are created by a one-shot `rpk` step in the Compose stack.
+Broker auto-creation is explicitly disabled. No service holds cluster-admin
+rights at runtime.
+**Consequences:** A typo in a topic constant now fails loudly instead of quietly
+creating a new topic and stranding messages in it. The topic list, its partition
+count and the audit topic's compaction policy are visible in the stack
+definition rather than buried in Go. Cost: adding a topic is a stack change, not
+a code change, which is the correct friction.

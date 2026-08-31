@@ -1,0 +1,190 @@
+name: harbormaster
+
+# Six services plus two pieces of infrastructure. No JVM, no Node, no metrics
+# stack (ADR-008, ADR-012, ADR-014). Cold start target is under 60 seconds.
+
+x-go-build: &go-build
+  context: .
+  dockerfile: go/Dockerfile
+
+services:
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+  redpanda:
+    image: redpandadata/redpanda:v24.2.11
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --memory=1G
+      - --overprovisioned
+      - --node-id=0
+      - --check=false
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092
+      # Topics are provisioned explicitly by topic-init below, not implicitly on
+      # first produce. Auto-creation would mean a typo in a topic constant
+      # silently creates a new topic instead of failing loudly (ADR-020).
+      - --set=redpanda.auto_create_topics_enabled=false
+    ports:
+      - "19092:9092"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true'"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hm
+      POSTGRES_PASSWORD: hm
+      POSTGRES_DB: hm
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hm -d hm"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # One-shot topic provisioning. Runs to completion, then exits. Keeping this
+  # out of the application means no service needs cluster-admin rights at
+  # runtime, and the topic list is visible in the stack definition rather than
+  # buried in Go.
+  topic-init:
+    image: redpandadata/redpanda:v24.2.11
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -euo pipefail
+        for t in hm.arrivals.raw hm.arrivals.classified hm.arrivals.quarantined \
+                 hm.review.decisions hm.berth.assigned hm.berth.superseded \
+                 hm.alerts.missing; do
+          rpk topic create "$$t" --brokers redpanda:9092 -p 6 -r 1 || true
+        done
+        # The audit log is compacted and retained indefinitely: it is the
+        # tamper-evident record, not a transient stream (LLD 4.1).
+        rpk topic create hm.audit.decisions --brokers redpanda:9092 -p 6 -r 1 \
+          -c cleanup.policy=compact -c retention.ms=-1 || true
+        rpk topic list --brokers redpanda:9092
+    restart: "no"
+
+  # ---------------------------------------------------------------------------
+  # Services
+  # ---------------------------------------------------------------------------
+  portwatch:
+    build:
+      <<: *go-build
+      args:
+        BINARY: portwatch
+    depends_on:
+      topic-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      HM_LANDING_DIR: /data/landing
+      HM_SCAN_INTERVAL: 2s
+      HM_STABILITY_WINDOW: 5s
+      HM_KAFKA_BROKERS: redpanda:9092
+      HM_POSTGRES_DSN: postgres://hm:hm@postgres:5432/hm?sslmode=disable
+      HM_OBJECT_STORE_ROOT: /data/objects
+      HM_LOG_LEVEL: info
+    volumes:
+      - ./data/landing:/data/landing
+      - objects:/data/objects
+
+  inspector:
+    build:
+      context: .
+      dockerfile: python/Dockerfile
+    depends_on:
+      topic-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      HM_KAFKA_BROKERS: redpanda:9092
+      HM_POSTGRES_DSN: postgres://hm:hm@postgres:5432/hm?sslmode=disable
+      HM_OBJECT_STORE_ROOT: /data/objects
+      HM_CONFIG_DIR: /config
+      # Deterministic by default. The live Claude tier is opt-in so the stack
+      # starts and runs with no API key (C-3).
+      HM_ADJUDICATOR: ${HM_ADJUDICATOR:-fake}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HM_CONF_DISPATCH: "0.85"
+      HM_CONF_QUARANTINE: "0.60"
+    volumes:
+      - objects:/data/objects
+      - ./config:/config:ro
+
+  berthmaster:
+    build:
+      <<: *go-build
+      args:
+        BINARY: berthmaster
+    depends_on:
+      topic-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      HM_KAFKA_BROKERS: redpanda:9092
+      HM_POSTGRES_DSN: postgres://hm:hm@postgres:5432/hm?sslmode=disable
+      HM_CONFIG_DIR: /config
+      HM_LATE_WINDOW_DAYS: "2"
+    volumes:
+      - ./config:/config:ro
+
+  controlplane:
+    build:
+      <<: *go-build
+      args:
+        BINARY: controlplane
+    depends_on:
+      topic-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      HM_KAFKA_BROKERS: redpanda:9092
+      HM_POSTGRES_DSN: postgres://hm:hm@postgres:5432/hm?sslmode=disable
+      HM_HTTP_ADDR: ":8080"
+      HM_MASK_ACCOUNTS: "true"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  reconstub:
+    build:
+      context: .
+      dockerfile: python/Dockerfile
+      args:
+        ENTRYPOINT_MODULE: reconstub.main
+    depends_on:
+      topic-init:
+        condition: service_completed_successfully
+    environment:
+      HM_KAFKA_BROKERS: redpanda:9092
+      HM_OBJECT_STORE_ROOT: /data/objects
+      HM_REPORT_DIR: /data/reports
+    volumes:
+      - objects:/data/objects
+      - ./data/reports:/data/reports
+
+volumes:
+  pgdata:
+  objects:

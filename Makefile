@@ -64,6 +64,10 @@ test-go: ## Go tests (contract fixture is emitted here for the Python side)
 test-py: test-go ## Python tests, including the cross-language contract check
 	$(PY) pytest
 
+.PHONY: test-store
+test-store: ## Store tests against a live Postgres (set HM_TEST_POSTGRES_DSN)
+	$(GO) go test ./internal/store/ -count=1 -v
+
 .PHONY: test-scenarios
 test-scenarios: ## The named adversarial scenarios from requirements section 8
 	$(PY) pytest ../tests/scenarios -v
