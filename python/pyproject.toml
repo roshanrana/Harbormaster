@@ -34,10 +34,11 @@ packages = ["src/inspector", "src/reconstub", "src/harbormaster"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Generated protobuf code is a build artefact, not source. Formatting it would
+# make `make proto` produce a diff on every run and break the staleness gate.
+extend-exclude = ["src/harbormaster"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
-[tool.ruff.lint.per-file-ignores]
-"src/harbormaster/**" = ["ALL"]
 
 [tool.mypy]
 python_version = "3.12"
