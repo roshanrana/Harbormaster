@@ -1,0 +1,28 @@
+# Ardent Global Markets — cash and collateral only, delivered as free-text
+# email bodies and JSON queue messages rather than files. Exercises both the
+# unstructured path and the second ingress.
+client_id: CLNT031
+client_name: Ardent Global Markets
+calendar: US_EQUITY
+late_window_days: 2
+
+accounts:
+  - id: "AGM-5590-01"
+    name: Ardent Liquidity Pool
+    venues: [NYSE, CBOE]
+
+filename_hints:
+  - pattern: '^ardent[-_]cash[-_](?P<date>\d{4}-\d{2}-\d{2})\.(txt|eml)$'
+    domain_map: {}
+    domain: CASH
+    source_hint: NYSE
+
+expectations:
+  - id: EXP-CLNT031-CASH
+    domain: CASH
+    cadence: DAILY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: NYSE, formats: [EMAIL_TEXT, JSON]}
+    value_date_field_hints: ["Value Date", "Effective Date", "Posting Date"]

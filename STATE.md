@@ -1,16 +1,15 @@
 # STATE — Harbormaster
 
 **Phase:** 5 — Build
-**Status:** M0 in progress; Portwatch complete, Inspector mapping core complete
+**Status:** M0 nearly closed; only Inspector wiring remains
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** Portwatch end to end (scanner, object store, dedupe, audit chain,
-  service binary). Inspector's canonical schema, alias dictionary, delimited
-  parser and price disambiguation all done. 86 Python tests + 8 Go packages green.
-- **Next:** finish M0 — Inspector emit/main wiring, T-012 berthmaster slot
-  machine, T-013 recon stub, T-014 end-to-end.
+- **Now:** Portwatch, registry, slot machine, Berthmaster and the recon stub are
+  all complete and tested. 94 Python tests + 10 Go packages green.
+- **Next:** Inspector wiring (sniff, attribution, value-date resolution, emit,
+  main) closes M0, then T-014 end-to-end.
 
 ## Decisions taken at intake
 
@@ -54,6 +53,9 @@
 | 2026-08-31 | T-037 | Hash-chained audit; tamper and deletion both detected |
 | 2026-08-31 | T-028 | Canonical schema + 200-entry alias dictionary across 8 venues |
 | 2026-08-31 | T-031 | Price disambiguation: vocabulary, preference, structure, arithmetic |
+| 2026-08-31 | T-025 | Registry: 6 clients, 4 calendars, strict validation, business-day maths |
+| 2026-08-31 | T-012/033/034/035 | Slot machine, late window, supersession, missing alerts, Berthmaster |
+| 2026-08-31 | T-013 | Recon stub with break report; null never treated as zero |
 
 ## Blockers
 

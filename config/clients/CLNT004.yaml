@@ -1,0 +1,55 @@
+# Meridian Capital Partners — cleared futures across CME and ICE.
+# Exercises the common case: two cuts a day, and a client whose file naming is
+# reliable but whose in-file dates are not.
+client_id: CLNT004
+client_name: Meridian Capital Partners
+calendar: US_EQUITY
+late_window_days: 2
+
+accounts:
+  - id: "8842-00119"
+    name: Meridian Global Macro
+    venues: [CME, ICE]
+  - id: "8842-00204"
+    name: Meridian Systematic
+    venues: [CME]
+
+filename_hints:
+  - pattern: '^MCP_(?P<domain>TRD|POS|CSH|COL)_(?P<date>\d{8})\.csv$'
+    domain_map: {TRD: TRADE, POS: POSITION, CSH: CASH, COL: COLLATERAL}
+    source_hint: CME
+  - pattern: '^meridian[-_](?P<domain>trades|positions)[-_](?P<date>\d{4}-\d{2}-\d{2})\.(csv|xlsx)$'
+    domain_map: {trades: TRADE, positions: POSITION}
+
+expectations:
+  - id: EXP-CLNT004-TRADE
+    domain: TRADE
+    cadence: DAILY
+    # Two cuts a day: an intraday file and an end-of-day file. Without this,
+    # the second cut looks like a correction and voids the first (FR-10).
+    cuts_per_day: 2
+    sides:
+      internal_gl:
+        source_hint: GL_EXTRACT
+        formats: [CSV]
+      external_client:
+        source_hint: CME
+        formats: [CSV, FIXML]
+    value_date_field_hints: ["Value Date", "SettleDate", "ValDate", "Settlement Date"]
+
+  - id: EXP-CLNT004-POSITION
+    domain: POSITION
+    cadence: DAILY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: CME, formats: [CSV, EXCEL]}
+    value_date_field_hints: ["As Of Date", "Position Date", "Business Date"]
+
+# Promoted mappings. Anything here was confirmed by a reviewer and now resolves
+# deterministically at Tier 1, which is how model dependence decreases over
+# time rather than growing (FR-28).
+field_overrides:
+  Px_Sett: settlement_price
+  Px_Last: trade_price
+  Acct_Ref: account_id

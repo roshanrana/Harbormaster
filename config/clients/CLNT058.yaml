@@ -1,0 +1,27 @@
+# Sable Ridge Trading — CBOE options. Weekly rather than daily, which means a
+# missing file must not alarm on the six days it is not expected.
+client_id: CLNT058
+client_name: Sable Ridge Trading
+calendar: US_EQUITY
+late_window_days: 2
+
+accounts:
+  - id: "SRT-9902"
+    name: Sable Ridge Volatility
+    venues: [CBOE, NYSE]
+
+filename_hints:
+  - pattern: '^SABLE_(?P<date>\d{8})_OPT\.csv$'
+    domain_map: {}
+    domain: POSITION
+    source_hint: CBOE
+
+expectations:
+  - id: EXP-CLNT058-POSITION
+    domain: POSITION
+    cadence: WEEKLY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: CBOE, formats: [CSV]}
+    value_date_field_hints: ["Position Date", "As Of"]

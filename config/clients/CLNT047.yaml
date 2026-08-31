@@ -1,0 +1,29 @@
+# Halloway & Finch — LSEG custody statements as Excel workbooks with cover
+# sheets and merged header cells. Exercises the awkward-workbook path.
+client_id: CLNT047
+client_name: Halloway and Finch
+calendar: UK_EQUITY
+late_window_days: 2
+
+accounts:
+  - id: "GB-2201-4407"
+    name: Halloway Balanced
+    venues: [LSEG]
+  - id: "GB-2201-4412"
+    name: Finch Income
+    venues: [LSEG, NYSE]
+
+filename_hints:
+  - pattern: '^HF_Custody_(?P<domain>Positions|Cash)_(?P<date>\d{2}[A-Za-z]{3}\d{4})\.xlsx$'
+    domain_map: {Positions: POSITION, Cash: CASH}
+    source_hint: LSEG
+
+expectations:
+  - id: EXP-CLNT047-POSITION
+    domain: POSITION
+    cadence: DAILY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: LSEG, formats: [EXCEL]}
+    value_date_field_hints: ["Valuation Date", "As At", "Statement Date"]

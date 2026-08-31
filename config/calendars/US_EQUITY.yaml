@@ -1,0 +1,18 @@
+# US equity and listed derivatives settlement calendar.
+# Holidays are configuration, not code: a market closure the system does not
+# know about resolves a value date onto a day the exchange was shut, and the
+# reconciliation then looks for a file that was never produced.
+calendar_id: US_EQUITY
+description: US equity and listed derivatives (NYSE, Nasdaq, CBOE, CME, ICE)
+weekend: [SATURDAY, SUNDAY]
+holidays:
+  - {date: "2026-01-01", name: New Year's Day}
+  - {date: "2026-01-19", name: Martin Luther King Jr. Day}
+  - {date: "2026-02-16", name: Washington's Birthday}
+  - {date: "2026-04-03", name: Good Friday}
+  - {date: "2026-05-25", name: Memorial Day}
+  - {date: "2026-06-19", name: Juneteenth}
+  - {date: "2026-07-03", name: Independence Day (observed)}
+  - {date: "2026-09-07", name: Labor Day}
+  - {date: "2026-11-26", name: Thanksgiving}
+  - {date: "2026-12-25", name: Christmas Day}

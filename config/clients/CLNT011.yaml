@@ -1,0 +1,42 @@
+# Northgate Asset Management — European cleared derivatives via EUREX.
+# Exercises XML/FIXML ingestion and a non-US settlement calendar.
+client_id: CLNT011
+client_name: Northgate Asset Management
+calendar: EUR_DERIV
+late_window_days: 2
+
+accounts:
+  - id: "DE-77120-004"
+    name: Northgate European Equity
+    venues: [EUREX]
+  - id: "DE-77120-009"
+    name: Northgate Rates Overlay
+    venues: [EUREX, LSEG]
+
+filename_hints:
+  - pattern: '^NGAM_(?P<date>\d{8})_(?P<domain>TRADES|POSN|COLL)\.(xml|fixml)$'
+    domain_map: {TRADES: TRADE, POSN: POSITION, COLL: COLLATERAL}
+    source_hint: EUREX
+
+expectations:
+  - id: EXP-CLNT011-TRADE
+    domain: TRADE
+    cadence: DAILY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: EUREX, formats: [XML, FIXML]}
+    value_date_field_hints: ["SettlDate", "ValueDt", "SettlementDate"]
+
+  - id: EXP-CLNT011-COLLATERAL
+    domain: COLLATERAL
+    cadence: DAILY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: EUREX, formats: [XML]}
+    value_date_field_hints: ["ValuationDate", "CollateralDate"]
+
+field_overrides:
+  MktVal_EUR: market_value
+  SettlCcy: currency

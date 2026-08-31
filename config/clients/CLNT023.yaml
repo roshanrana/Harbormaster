@@ -1,0 +1,30 @@
+# Pacific Rim Securities — HKEX and Nasdaq. Files arrive late in the London
+# day, so a same-day filename routinely carries the previous business date.
+# This is the client the late-arrival handling exists for.
+client_id: CLNT023
+client_name: Pacific Rim Securities
+calendar: HK_EQUITY
+late_window_days: 3
+
+accounts:
+  - id: "HK-4471-0021"
+    name: Pacific Rim Growth
+    venues: [HKEX]
+  - id: "US-4471-0088"
+    name: Pacific Rim US Tech
+    venues: [NASDAQ]
+
+filename_hints:
+  - pattern: '^PRS[-_](?P<domain>trd|pos)[-_](?P<date>\d{8})\.(csv|xlsx)$'
+    domain_map: {trd: TRADE, pos: POSITION}
+    source_hint: HKEX
+
+expectations:
+  - id: EXP-CLNT023-TRADE
+    domain: TRADE
+    cadence: DAILY
+    cuts_per_day: 1
+    sides:
+      internal_gl: {source_hint: GL_EXTRACT, formats: [CSV]}
+      external_client: {source_hint: HKEX, formats: [CSV, EXCEL]}
+    value_date_field_hints: ["Settlement Date", "Value Date"]
