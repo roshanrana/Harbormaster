@@ -1,6 +1,6 @@
 # T-006 — make check and CI
 
-**Milestone:** G  **Depends on:** T-002..T-005  **Status:** `pending`
+**Milestone:** G  **Depends on:** T-002..T-005  **Status:** `done` — validated-here
 
 ## Scope
 Only these paths may be touched: `Makefile, .github/`
@@ -9,9 +9,9 @@ Only these paths may be touched: `Makefile, .github/`
 Aggregate every static and test gate behind one command, and run the identical command in GitHub Actions.
 
 ## Acceptance criteria
-- [ ] `make check` runs fmt, lint, type check, buf lint, codegen freshness, all unit tests
-- [ ] Runs fully offline with no network and no API key
-- [ ] CI workflow invokes `make check` verbatim, not a reimplementation
+- [x] `make check` runs fmt, lint, type check, buf lint, codegen freshness, all unit tests
+- [x] Runs fully offline with no network and no API key
+- [x] CI workflow invokes `make check` verbatim, not a reimplementation
 
 ## Validation
 ```
@@ -22,4 +22,4 @@ make check
 03-lld.md §9 — read only what the criteria above require.
 
 ## Handoff notes
-_Filled in on completion. Max 10 lines._
+`make check` runs fmt, lint, typecheck, buf lint, codegen staleness and all tests. Green, offline, no API key. CI invokes `make check` verbatim.

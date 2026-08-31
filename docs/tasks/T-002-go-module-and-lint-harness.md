@@ -1,6 +1,6 @@
 # T-002 — Go module and lint harness
 
-**Milestone:** G  **Depends on:** T-001  **Status:** `pending`
+**Milestone:** G  **Depends on:** T-001  **Status:** `done` — validated-here
 
 ## Scope
 Only these paths may be touched: `go/`
@@ -9,9 +9,9 @@ Only these paths may be touched: `go/`
 Initialise a single Go module with three cmd packages, wire golangci-lint, go vet and go test.
 
 ## Acceptance criteria
-- [ ] `go build ./...` succeeds with stub mains
-- [ ] golangci-lint config committed and passing
-- [ ] One trivial table-driven test exists and runs
+- [x] `go build ./...` succeeds with stub mains
+- [x] golangci-lint config committed and passing
+- [x] One trivial table-driven test exists and runs
 
 ## Validation
 ```
@@ -22,4 +22,4 @@ cd go && go build ./... && go vet ./... && golangci-lint run && go test ./...
 03-lld.md §1 — read only what the criteria above require.
 
 ## Handoff notes
-_Filled in on completion. Max 10 lines._
+Go module `harbormaster.dev/hm`, golangci-lint v1.62.2, go vet and go test all clean.
