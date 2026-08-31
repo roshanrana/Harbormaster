@@ -1,6 +1,6 @@
 # T-023 — JSON payload parser
 
-**Milestone:** M2  **Depends on:** T-011  **Status:** `pending`
+**Milestone:** M2  **Depends on:** T-011  **Status:** `done` — validated-here
 
 ## Scope
 Only these paths may be touched: `python/src/inspector/parsers/`
@@ -9,9 +9,9 @@ Only these paths may be touched: `python/src/inspector/parsers/`
 Parse queue JSON payloads, including nested and array-of-record shapes.
 
 ## Acceptance criteria
-- [ ] Array-of-objects and single-object shapes both handled
-- [ ] Nested objects flattened to dotted source_field paths
-- [ ] Type information preserved into the canonical decimals
+- [x] Array-of-objects and single-object shapes both handled
+- [x] Nested objects flattened to dotted source_field paths
+- [x] Type information preserved into the canonical decimals
 
 ## Validation
 ```
@@ -22,4 +22,4 @@ make check
 FR-3 — read only what the criteria above require.
 
 ## Handoff notes
-_Filled in on completion. Max 10 lines._
+JSON parser: locates records under a named key or the longest object array, keeps scalar envelope fields on every row, flattens nesting to dotted paths, bounded depth so a pathological payload cannot block a partition. 6 tests.

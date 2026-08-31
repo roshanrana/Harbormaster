@@ -1,16 +1,15 @@
 # STATE — Harbormaster
 
 **Phase:** 5 — Build
-**Status:** M0 complete; 178 Python tests + 10 Go packages green
+**Status:** M2 + corpus complete; 210 Python tests + 10 Go packages green
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** M0 walking skeleton complete. A CSV lands, is attributed, has its
-  true value date resolved, columns mapped with provenance, written as typed
-  Parquet, paired into a slot and dispatched as a berth assignment.
-- **Next:** M2 parser breadth (Excel, XML, FIXML, email, JSON), then the
-  corpus generator pulled forward to W6, then T-014 cross-language e2e.
+- **Now:** All six formats parse into one ParsedTable. Corpus generator and the
+  twelve adversarial fixtures exist and are generated deterministically.
+- **Next:** T-029/T-030 Tier 2 and Tier 3 mapping seams, then T-038/T-039
+  control plane, the UI, and the scenario suite.
 
 ## Decisions taken at intake
 
@@ -61,6 +60,8 @@
 | 2026-08-31 | T-026 | Attribution: agreement raises confidence, conflict quarantines |
 | 2026-08-31 | T-032 | Weighted confidence, per-domain required fields, specific reasons |
 | 2026-08-31 | T-011/024/036 | Inspector pipeline, content sniffing, multi-date splitting |
+| 2026-08-31 | T-043/044 | Corpus generator, 8 venue vocabularies, 12 adversarial fixtures |
+| 2026-08-31 | T-019..T-023 | Excel, XML, FIXML, JSON and email parsers; all six formats live |
 
 ## Blockers
 

@@ -30,6 +30,8 @@ dev = [
     "ruff>=0.8",
     "types-protobuf>=5.28",
     "types-PyYAML>=6.0",
+    "types-openpyxl>=3.1",
+    "lxml-stubs>=0.5",
 ]
 
 [build-system]
@@ -37,7 +39,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/inspector", "src/reconstub", "src/harbormaster"]
+packages = ["src/inspector", "src/reconstub", "src/harbormaster", "src/corpus"]
 
 [tool.ruff]
 line-length = 100

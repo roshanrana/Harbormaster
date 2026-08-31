@@ -28,6 +28,22 @@ from inspector.mapping import canonical as c
 from inspector.mapping.tier1 import Mapping, Tier1Mapper, cross_check_amount
 from inspector.parsers.base import ParsedTable, ParseError, Parser
 from inspector.parsers.delimited import DelimitedParser
+from inspector.parsers.email_text import EmailTextParser
+from inspector.parsers.excel import ExcelParser
+from inspector.parsers.fixml import FIXMLParser
+from inspector.parsers.json_parser import JSONParser
+from inspector.parsers.xml_parser import XMLParser
+
+# Registration order is irrelevant: the parser with the highest sniff score
+# wins, and every parser scores on content rather than on the filename (FR-17).
+DEFAULT_PARSERS: tuple[type, ...] = (
+    DelimitedParser,
+    ExcelParser,
+    XMLParser,
+    FIXMLParser,
+    JSONParser,
+    EmailTextParser,
+)
 
 _TIER_ENUM = {
     c.Tier.ALIAS: hm.RESOLUTION_TIER_ALIAS,
@@ -111,7 +127,7 @@ class Inspector:
     ) -> None:
         self.registry = reg
         self.object_root = object_root
-        self.parsers: list[Parser] = parsers or [DelimitedParser()]
+        self.parsers: list[Parser] = parsers or [cls() for cls in DEFAULT_PARSERS]
 
     # --- stages ------------------------------------------------------------
 
