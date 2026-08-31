@@ -25,7 +25,9 @@ from inspector import attribution as attribution_mod
 from inspector import bus, confidence, emit, registry, valuedate
 from inspector import logging as hmlog
 from inspector.mapping import canonical as c
-from inspector.mapping.tier1 import Mapping, Tier1Mapper, cross_check_amount
+from inspector.mapping.resolver import TieredResolver
+from inspector.mapping.tier1 import Mapping, cross_check_amount
+from inspector.mapping.tier3 import MappingAdjudicator, TemplateCache
 from inspector.parsers.base import ParsedTable, ParseError, Parser
 from inspector.parsers.delimited import DelimitedParser
 from inspector.parsers.email_text import EmailTextParser
@@ -124,10 +126,16 @@ class Inspector:
         reg: registry.Registry,
         object_root: Path,
         parsers: list[Parser] | None = None,
+        adjudicator: MappingAdjudicator | None = None,
+        cache: TemplateCache | None = None,
     ) -> None:
         self.registry = reg
         self.object_root = object_root
         self.parsers: list[Parser] = parsers or [cls() for cls in DEFAULT_PARSERS]
+        # The Tier 3 seam is unbound by default, so the pipeline runs with no
+        # model at all. Binding it is a deployment decision, not a code one.
+        self.adjudicator = adjudicator
+        self.cache = cache
 
     # --- stages ------------------------------------------------------------
 
@@ -169,8 +177,19 @@ class Inspector:
         overrides = client.field_overrides if client else {}
         domain = attribution.domain or c.Domain.UNKNOWN
 
-        mapper = Tier1Mapper(overrides)
-        mappings = mapper.map_table(table)
+        fingerprint = template_fingerprint(attribution.client_id, table.headers)
+        resolver = TieredResolver(
+            field_overrides=overrides, adjudicator=self.adjudicator, cache=self.cache
+        )
+        outcome = resolver.resolve(
+            table,
+            client_id=attribution.client_id or "",
+            client_name=client.client_name if client else "",
+            source_hint=attribution.source_hint,
+            domain=domain,
+            template_fingerprint=fingerprint,
+        )
+        mappings = outcome.mappings
         agrees, cross_check_note = cross_check_amount(table, mappings)
         if agrees is False:
             cross_check_note = "arithmetic cross-check FAILED: " + cross_check_note
@@ -178,7 +197,6 @@ class Inspector:
         # A file spanning several value dates becomes several sub-batches, each
         # dispatched to its own reconciliation slot (FR-16).
         groups = valuedate.split_by_value_date(table.rows, table.headers, hints)
-        fingerprint = template_fingerprint(attribution.client_id, table.headers)
 
         if not groups:
             resolution = valuedate.resolve(

@@ -1,15 +1,15 @@
 # STATE — Harbormaster
 
 **Phase:** 5 — Build
-**Status:** M2 + corpus complete; 210 Python tests + 10 Go packages green
+**Status:** M3 complete; 235 Python tests + 10 Go packages green
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** All six formats parse into one ParsedTable. Corpus generator and the
-  twelve adversarial fixtures exist and are generated deterministically.
-- **Next:** T-029/T-030 Tier 2 and Tier 3 mapping seams, then T-038/T-039
-  control plane, the UI, and the scenario suite.
+- **Now:** Full three-tier mapping ladder live and wired into the Inspector.
+  Escalation is one-way; the template cache means a repeated layout costs nothing.
+- **Next:** T-039 control plane read models and API, T-038 review queue, then
+  the UI (T-040/041/042) and the scenario suite (T-045).
 
 ## Decisions taken at intake
 
@@ -62,6 +62,7 @@
 | 2026-08-31 | T-011/024/036 | Inspector pipeline, content sniffing, multi-date splitting |
 | 2026-08-31 | T-043/044 | Corpus generator, 8 venue vocabularies, 12 adversarial fixtures |
 | 2026-08-31 | T-019..T-023 | Excel, XML, FIXML, JSON and email parsers; all six formats live |
+| 2026-08-31 | T-029/030 | Tier 2 fuzzy+embedding, Tier 3 seam, durable template cache |
 
 ## Blockers
 
