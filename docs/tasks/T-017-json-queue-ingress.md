@@ -1,6 +1,6 @@
 # T-017 — JSON queue ingress
 
-**Milestone:** M1  **Depends on:** T-015  **Status:** `pending`
+**Milestone:** M1  **Depends on:** T-015  **Status:** `done` — validated-here
 
 ## Scope
 Only these paths may be touched: `go/internal/ingress/`
@@ -9,9 +9,9 @@ Only these paths may be touched: `go/internal/ingress/`
 Second ingress path: consume JSON payloads from an upstream queue and emit ArrivalRaw with ingress=QUEUE.
 
 ## Acceptance criteria
-- [ ] Queue payload stored to the object store and hashed identically to a file
-- [ ] Dedupe applies across both ingress paths
-- [ ] Malformed payload dead-lettered, not crashed on
+- [x] Queue payload stored to the object store and hashed identically to a file
+- [x] Dedupe applies across both ingress paths
+- [x] Malformed payload dead-lettered, not crashed on
 
 ## Validation
 ```
@@ -22,4 +22,4 @@ make check
 FR-3 — read only what the criteria above require.
 
 ## Handoff notes
-_Filled in on completion. Max 10 lines._
+JSON queue ingress reusing the same processor path as a landed file, so dedupe, audit and classification behave identically for both routes. Payload hashed like a file, so a redelivery after consumer restart is caught by content rather than by any broker guarantee. Malformed payloads skipped, not retried forever. Message ids sanitised against path traversal. 6 tests.

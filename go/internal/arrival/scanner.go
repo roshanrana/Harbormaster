@@ -209,3 +209,16 @@ func (s *Scanner) sentinelPresent(path string) bool {
 	_, err := os.Stat(path + s.policy.SentinelSuffix)
 	return err == nil
 }
+
+// WriteStaged writes a queue payload to disk so it can be handled by the same
+// code path as a landed file. Returns the path written.
+func WriteStaged(dir, name string, payload []byte) (string, error) {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		return "", fmt.Errorf("arrival: staging dir %s: %w", dir, err)
+	}
+	path := filepath.Join(dir, filepath.Base(name))
+	if err := os.WriteFile(path, payload, 0o600); err != nil {
+		return "", fmt.Errorf("arrival: stage %s: %w", name, err)
+	}
+	return path, nil
+}

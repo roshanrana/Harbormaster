@@ -328,11 +328,16 @@ class CorpusGenerator:
         ]
         if include_value_date:
             headers.append(profile.value_date)
+        # When the fixture is exercising bare headers, the venue's extra price
+        # columns are suppressed. Leaving them in would let header vocabulary
+        # resolve the settlement price, and the case would no longer test the
+        # structural path it exists to test.
+        surplus = () if bare_price_header else profile.surplus_prices
         headers += [
             profile.quantity,
             "Price" if bare_price_header else profile.trade_price,
             "Px" if bare_price_header else profile.settlement_price,
-            *profile.surplus_prices,
+            *surplus,
             profile.net_amount,
             profile.currency,
             profile.side,
@@ -354,7 +359,7 @@ class CorpusGenerator:
             if include_value_date:
                 row.append(t.value_date.strftime(profile.date_format))
             row += [str(t.quantity), str(t.trade_price), str(t.settlement_price)]
-            row += [str(t.settlement_price - Decimal("1.50")) for _ in profile.surplus_prices]
+            row += [str(t.settlement_price - Decimal("1.50")) for _ in surplus]
             row += [str(t.net_amount), t.currency, t.side]
             lines.append(d.join(row))
 

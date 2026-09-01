@@ -63,6 +63,7 @@ test-go: ## Go tests (contract fixture is emitted here for the Python side)
 .PHONY: test-py
 test-py: test-go ## Python tests, including the cross-language contract check
 	$(PY) pytest
+	$(PY) pytest ../tests/scenarios
 
 .PHONY: test-store
 test-store: ## Store tests against a live Postgres (set HM_TEST_POSTGRES_DSN)
@@ -71,6 +72,10 @@ test-store: ## Store tests against a live Postgres (set HM_TEST_POSTGRES_DSN)
 .PHONY: test-scenarios
 test-scenarios: ## The named adversarial scenarios from requirements section 8
 	$(PY) pytest ../tests/scenarios -v
+
+.PHONY: test-live
+test-live: ## Opt-in test against the real Anthropic API (needs ANTHROPIC_API_KEY)
+	cd python && HM_LIVE=1 uv run pytest ../tests/live -v
 
 # ---------------------------------------------------------------------------
 # Runtime. Requires Docker; not exercisable in the build container (ADR-018).

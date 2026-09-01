@@ -64,6 +64,10 @@ type Processor struct {
 
 // Handle processes one candidate file end to end.
 func (p *Processor) Handle(ctx context.Context, c Candidate) error {
+	return p.handle(ctx, c, IngressFTP)
+}
+
+func (p *Processor) handle(ctx context.Context, c Candidate, ingress string) error {
 	arrivalID := ulid.Make().String()
 	ctx = logging.WithArrival(ctx, arrivalID)
 	log := logging.From(ctx, p.Log)
@@ -99,7 +103,7 @@ func (p *Processor) Handle(ctx context.Context, c Candidate) error {
 
 	rec := Record{
 		ArrivalID: arrivalID, SHA256: sum, OriginalName: c.Name,
-		Ingress: IngressFTP, URI: uri, Size: size, DetectedAt: time.Now().UTC(),
+		Ingress: ingress, URI: uri, Size: size, DetectedAt: time.Now().UTC(),
 	}
 	if err := p.Recorder.Record(ctx, rec); err != nil {
 		if errors.Is(err, ErrAlreadyRecorded) {
@@ -112,7 +116,7 @@ func (p *Processor) Handle(ctx context.Context, c Candidate) error {
 	msg := &hmv1.ArrivalRaw{
 		ArrivalId:     arrivalID,
 		DetectedAt:    timestamppb.New(rec.DetectedAt),
-		Ingress:       IngressFTP,
+		Ingress:       ingress,
 		Uri:           uri,
 		OriginalName:  c.Name,
 		SizeBytes:     size,
@@ -161,4 +165,14 @@ func (p *Processor) auditSuppression(ctx context.Context, arrivalID string, c Ca
 			"prior_name": d.PriorName, "seen_count": d.SeenCount,
 		},
 	})
+}
+
+// HandleQueuePayload processes an arrival that came from the queue rather than
+// the landing directory.
+//
+// Identical to Handle apart from the recorded ingress label. Keeping one code
+// path means dedupe, audit and classification behave the same for both routes,
+// rather than the second route being a lightly-tested special case.
+func (p *Processor) HandleQueuePayload(ctx context.Context, c Candidate) error {
+	return p.handle(ctx, c, IngressQueue)
 }

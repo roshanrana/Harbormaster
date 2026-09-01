@@ -88,18 +88,45 @@ func TestMigrateIsIdempotent(t *testing.T) {
 	}
 }
 
-func TestRollbackRemovesSchema(t *testing.T) {
+func TestRollbackRevertsTheMostRecentMigration(t *testing.T) {
 	db := freshDB(t)
 	ctx := context.Background()
-	if _, err := Migrate(ctx, db); err != nil {
+	applied, err := Migrate(ctx, db)
+	if err != nil {
 		t.Fatal(err)
 	}
+	latest := applied[len(applied)-1]
+
 	v, err := Rollback(ctx, db)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v != 1 {
-		t.Fatalf("expected to roll back version 1, got %d", v)
+	if v != latest {
+		t.Fatalf("rolled back version %d, want the most recent (%d)", v, latest)
+	}
+	// The bookkeeping row must go with it, or a re-run would skip the
+	// migration it just undid.
+	var recorded int
+	if err := db.QueryRowContext(ctx,
+		`SELECT count(*) FROM schema_migration WHERE version = $1`, latest).Scan(&recorded); err != nil {
+		t.Fatal(err)
+	}
+	if recorded != 0 {
+		t.Fatal("rollback left its bookkeeping row behind")
+	}
+}
+
+func TestRollingBackEveryMigrationRemovesTheSchema(t *testing.T) {
+	db := freshDB(t)
+	ctx := context.Background()
+	applied, err := Migrate(ctx, db)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for range applied {
+		if _, err := Rollback(ctx, db); err != nil {
+			t.Fatal(err)
+		}
 	}
 	var n int
 	if err := db.QueryRowContext(ctx,
@@ -107,7 +134,22 @@ func TestRollbackRemovesSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	if n != 0 {
-		t.Fatal("rollback did not drop the schema")
+		t.Fatal("unwinding every migration did not drop the schema")
+	}
+}
+
+func TestRollbackOnAnEmptyDatabaseIsHarmless(t *testing.T) {
+	db := freshDB(t)
+	ctx := context.Background()
+	if _, err := db.ExecContext(ctx, schemaTable); err != nil {
+		t.Fatal(err)
+	}
+	v, err := Rollback(ctx, db)
+	if err != nil {
+		t.Fatalf("rolling back with nothing applied should be a no-op: %v", err)
+	}
+	if v != 0 {
+		t.Fatalf("expected version 0, got %d", v)
 	}
 }
 
