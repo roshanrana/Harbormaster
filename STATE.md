@@ -59,4 +59,6 @@ None. Two gates are host-dependent by design (ADR-018) and are marked
   smaller dependency tree than planned and two better decisions: polling rather
   than inotify (ADR-016) and topic provisioning in infrastructure rather than
   the application (ADR-020).
-- `go.sum` not committed; `go mod tidy` must run once on first checkout.
+- A developer-local `go.work` is ignored by git and may contain host-specific
+  replacements. Makefile Go gates run with `GOWORK=off` so the committed module
+  graph is the source of truth.

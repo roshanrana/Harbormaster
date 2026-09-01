@@ -4,6 +4,17 @@ Intelligent file-arrival control for financial reconciliation.
 
 ---
 
+## Interview Snapshot
+
+| | |
+|---|---|
+| Delivery signal | Production-style deployment engineering for financial operations: messy external files and queue messages in, explainable routing decisions, review queues, audit evidence, and operational posture out. |
+| Product features | Multi-format intake, JSON queue ingress, write-completion detection, duplicate/redelivery handling, content-based value-date resolution, client attribution, tiered field mapping with deterministic and model-backed paths, quarantine/four-eyes review, slot lifecycle, missing-file alerts, hash-chained audit, and a live operations console with `/api/ops`. |
+| Implementation stack | Go services, Python inference/parsing layer, Protobuf contracts, Kafka/Redpanda-compatible topics, Postgres read models, Docker Compose, embedded Go templates, HTMX, deterministic corpus generation. |
+| Validation performed | Go unit/contract tests and `go vet`; Python ruff/mypy/pytest; 17 named adversarial scenario tests; cross-language protobuf and masking parity checks; documented Docker, e2e, audit, and live-model gates. |
+
+---
+
 ## The problem
 
 A bank reconciles trades, positions, cash and collateral against its general

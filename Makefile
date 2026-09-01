@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-GO      := cd go &&
+GO      := cd go && GOWORK=off
 PY      := cd python && uv run
 COMPOSE := docker compose
 

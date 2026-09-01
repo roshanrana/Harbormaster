@@ -34,7 +34,9 @@ def test_parity_table_exists() -> None:
     assert TABLE.exists(), "run `go test ./internal/masking/` first"
 
 
-@pytest.mark.parametrize("case", json.loads(TABLE.read_text()).items() if TABLE.exists() else [])
+@pytest.mark.parametrize(
+    "case", json.loads(TABLE.read_text(encoding="utf-8")).items() if TABLE.exists() else []
+)
 def test_python_matches_go(case: tuple[str, str]) -> None:
     raw, expected = case
     assert masking.account_number(raw) == expected

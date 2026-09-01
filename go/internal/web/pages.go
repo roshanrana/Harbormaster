@@ -16,6 +16,7 @@ type pageData struct {
 	Title   string
 	Nav     string
 	Summary Summary
+	Posture OperationalPosture
 	Data    any
 }
 
@@ -84,6 +85,9 @@ func (s *Server) render(w http.ResponseWriter, r *http.Request, name string, dat
 	summary, err := s.store.Summary(r.Context())
 	if err != nil {
 		s.log.Error("summary failed", slog.String("error", err.Error()))
+		data.Posture = DegradedPosture()
+	} else {
+		data.Posture = summary.Posture()
 	}
 	data.Summary = summary
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -346,6 +350,20 @@ func TemplateFuncs() map[string]any {
 				return "—"
 			}
 			return s
+		},
+		"postureClass": func(s string) string {
+			switch s {
+			case "CLEAR":
+				return "posture-clear"
+			case "ATTENTION":
+				return "posture-attention"
+			case "INCIDENT":
+				return "posture-incident"
+			case "DEGRADED":
+				return "posture-degraded"
+			default:
+				return "posture-attention"
+			}
 		},
 	}
 }

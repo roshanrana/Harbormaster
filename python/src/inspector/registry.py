@@ -210,7 +210,7 @@ def load(config_dir: str | Path) -> Registry:
 
 def _read_yaml(path: Path) -> dict[str, Any]:
     try:
-        data = yaml.safe_load(path.read_text())
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as exc:
         raise ConfigError(f"{path.name}: {exc}") from exc
     if not isinstance(data, dict):

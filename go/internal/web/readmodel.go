@@ -357,6 +357,88 @@ type Summary struct {
 	QuarantineRate float64 `json:"quarantine_rate"`
 }
 
+const quarantineRateTarget = 0.05
+
+// OperationalPosture translates board counts into an operator-facing status.
+type OperationalPosture struct {
+	Level                string   `json:"level"`
+	Label                string   `json:"label"`
+	Action               string   `json:"action"`
+	Rationale            []string `json:"rationale"`
+	QuarantineRateTarget float64  `json:"quarantine_rate_target"`
+}
+
+// Posture derives the next operational action from the current summary.
+func (s Summary) Posture() OperationalPosture {
+	out := OperationalPosture{
+		Level:                "CLEAR",
+		Label:                "Clear",
+		Action:               "No operator action is waiting in the console.",
+		QuarantineRateTarget: quarantineRateTarget,
+	}
+
+	switch {
+	case s.OpenAlerts > 0:
+		out.Level = "INCIDENT"
+		out.Label = "Action required"
+		out.Action = "Acknowledge missing-file alerts and contact the producing system owner."
+	case s.QuarantineRate > quarantineRateTarget:
+		out.Level = "ATTENTION"
+		out.Label = "Rate above target"
+		out.Action = "Review held files and promote confirmed mappings into the dictionary."
+	case s.Quarantined > 0:
+		out.Level = "ATTENTION"
+		out.Label = "Review needed"
+		out.Action = "Open the review queue and record decisions for held files."
+	case s.Rejected > 0:
+		out.Level = "ATTENTION"
+		out.Label = "Rejected files"
+		out.Action = "Inspect rejected arrivals and confirm the producer has the expected format."
+	case s.Mismatches > 0:
+		out.Level = "ATTENTION"
+		out.Label = "Schedule drift"
+		out.Action = "Inspect value-date disagreements for late upstream batches."
+	}
+
+	out.Rationale = s.postureRationale()
+	if len(out.Rationale) == 0 {
+		out.Rationale = []string{"no open alerts or queued reviews"}
+	}
+	return out
+}
+
+// DegradedPosture is shown when the projection store cannot answer.
+func DegradedPosture() OperationalPosture {
+	return OperationalPosture{
+		Level:                "DEGRADED",
+		Label:                "Projection unavailable",
+		Action:               "Check Postgres connectivity and replay the projector once the store is back.",
+		Rationale:            []string{"summary query failed"},
+		QuarantineRateTarget: quarantineRateTarget,
+	}
+}
+
+func (s Summary) postureRationale() []string {
+	var out []string
+	if s.OpenAlerts > 0 {
+		out = append(out, fmt.Sprintf("open missing-file alerts: %d", s.OpenAlerts))
+	}
+	if s.Quarantined > 0 {
+		out = append(out, fmt.Sprintf("review queue: %d", s.Quarantined))
+	}
+	if s.Rejected > 0 {
+		out = append(out, fmt.Sprintf("rejected arrivals: %d", s.Rejected))
+	}
+	if s.Mismatches > 0 {
+		out = append(out, fmt.Sprintf("value-date disagreements: %d", s.Mismatches))
+	}
+	if s.QuarantineRate > 0 {
+		out = append(out, fmt.Sprintf("quarantine rate: %.0f%% (target %.0f%%)",
+			s.QuarantineRate*100, quarantineRateTarget*100))
+	}
+	return out
+}
+
 // Summary computes the board headline counts.
 func (s *Store) Summary(ctx context.Context) (Summary, error) {
 	var out Summary

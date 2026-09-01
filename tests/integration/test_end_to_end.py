@@ -119,7 +119,7 @@ def test_recon_stub_writes_a_break_report(corpus: dict[str, list[Path]]) -> None
     reports = wait_for(
         lambda: list(REPORTS.glob("*.json")), "the recon stub to write a break report"
     )
-    payload = json.loads(reports[0].read_text())
+    payload = json.loads(reports[0].read_text(encoding="utf-8"))
     assert payload["client_id"]
     assert payload["value_date"]
     assert "break_count" in payload

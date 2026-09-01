@@ -19,7 +19,7 @@
       <a href="/quarantine" class="{{if eq .Nav "quarantine"}}on{{end}}">Review queue <span class="count">{{.Summary.Quarantined}}</span></a>
       <a href="/slots" class="{{if eq .Nav "slots"}}on{{end}}">Slots <span class="count">{{.Summary.OpenAlerts}}</span></a>
     </nav>
-    <footer>Quarantine rate {{pct .Summary.QuarantineRate}}<br>target 5% or below</footer>
+    <footer>Ops posture <span class="{{postureClass .Posture.Level}}">{{.Posture.Label}}</span><br>Quarantine rate {{pct .Summary.QuarantineRate}}<br>target 5% or below</footer>
   </aside>
   <main class="main">{{template "content" .}}</main>
 </div>

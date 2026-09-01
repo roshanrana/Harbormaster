@@ -63,6 +63,7 @@ func (s *Server) Routes() http.Handler {
 	r.Get("/readyz", s.ready)
 
 	r.Route("/api", func(api chi.Router) {
+		api.Get("/ops", s.getOps)
 		api.Get("/summary", s.getSummary)
 		api.Get("/arrivals", s.getArrivals)
 		api.Get("/arrivals/{id}", s.getArrival)
@@ -113,6 +114,40 @@ func (s *Server) getSummary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, summary)
+}
+
+// OpsSnapshot is the deployment-facing status returned by /api/ops.
+type OpsSnapshot struct {
+	Status        string             `json:"status"`
+	StartedAt     time.Time          `json:"started_at"`
+	UptimeSeconds int                `json:"uptime_seconds"`
+	Subscribers   int                `json:"subscribers"`
+	Summary       Summary            `json:"summary"`
+	Posture       OperationalPosture `json:"posture"`
+}
+
+func (s *Server) getOps(w http.ResponseWriter, r *http.Request) {
+	snapshot, err := s.opsSnapshot(r.Context())
+	if err != nil {
+		s.fail(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, snapshot)
+}
+
+func (s *Server) opsSnapshot(ctx context.Context) (OpsSnapshot, error) {
+	summary, err := s.store.Summary(ctx)
+	if err != nil {
+		return OpsSnapshot{}, err
+	}
+	return OpsSnapshot{
+		Status:        "ready",
+		StartedAt:     s.started,
+		UptimeSeconds: int(time.Since(s.started).Seconds()),
+		Subscribers:   s.events.Subscribers(),
+		Summary:       summary,
+		Posture:       summary.Posture(),
+	}, nil
 }
 
 func (s *Server) getArrivals(w http.ResponseWriter, r *http.Request) {
@@ -187,7 +222,12 @@ func (s *Server) postAcknowledge(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Reviewer string `json:"reviewer"`
 	}
-	_ = json.NewDecoder(r.Body).Decode(&body)
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "malformed alert acknowledgement body",
+		})
+		return
+	}
 	if body.Reviewer == "" {
 		writeJSON(w, http.StatusBadRequest, map[string]string{
 			"error": "acknowledging an alert requires a named reviewer",

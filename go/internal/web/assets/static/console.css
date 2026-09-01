@@ -119,6 +119,12 @@ a { color: inherit; }
   color: #64798a;
 }
 
+.rail footer span[class^="posture-"] { font-weight: 600; }
+.rail footer .posture-clear { color: #9dcbbf; }
+.rail footer .posture-attention { color: #d9b978; }
+.rail footer .posture-incident,
+.rail footer .posture-degraded { color: #df9ca3; }
+
 .main { flex: 1; min-width: 0; padding: 22px 28px 48px; }
 
 /* ---------- page heading ---------- */
@@ -178,6 +184,67 @@ a { color: inherit; }
 
 .tide dd.flag { color: var(--brass); }
 .tide dd.bad { color: var(--refuse); }
+
+/* ---------- operational posture ----------
+ * A deployment-facing triage strip: counts tell what happened, this tells an
+ * operator which queue to touch first.
+ */
+
+.posture {
+  display: grid;
+  grid-template-columns: 190px minmax(260px, 1fr) minmax(220px, auto);
+  gap: 14px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  margin: -8px 0 20px;
+  padding: 11px 16px;
+}
+
+.posture.posture-clear { border-left-color: var(--sea); }
+.posture.posture-attention { border-left-color: var(--brass); }
+.posture.posture-incident,
+.posture.posture-degraded { border-left-color: var(--refuse); }
+
+.posture span {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 11.5px;
+}
+
+.posture strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.posture p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.posture ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.posture li {
+  padding: 2px 7px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink-muted);
+  font-size: 11.5px;
+}
 
 /* ---------- tables ---------- */
 
@@ -422,6 +489,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .shell { flex-direction: column; }
   .rail { width: 100%; flex: none; }
   .rail nav { display: flex; flex-wrap: wrap; }
+  .posture { grid-template-columns: 1fr; margin-top: 0; }
+  .posture ul { justify-content: flex-start; }
   .cols { grid-template-columns: 1fr; }
   .main { padding: 18px 16px 40px; }
 }

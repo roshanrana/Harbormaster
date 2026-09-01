@@ -29,7 +29,7 @@ FIXTURE = (
 def msg() -> hm.ArrivalClassified:
     if not FIXTURE.exists():
         pytest.skip("run `go test ./internal/contract/` first to emit the fixture")
-    return json_format.Parse(FIXTURE.read_text(), hm.ArrivalClassified())
+    return json_format.Parse(FIXTURE.read_text(encoding="utf-8"), hm.ArrivalClassified())
 
 
 def test_scalars_survive(msg: hm.ArrivalClassified) -> None:
@@ -68,6 +68,6 @@ def test_field_mapping_provenance_survives(msg: hm.ArrivalClassified) -> None:
 
 
 def test_reserialises_to_equivalent_json(msg: hm.ArrivalClassified) -> None:
-    original = json.loads(FIXTURE.read_text())
+    original = json.loads(FIXTURE.read_text(encoding="utf-8"))
     reserialised = json.loads(json_format.MessageToJson(msg))
     assert reserialised == original

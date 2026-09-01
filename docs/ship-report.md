@@ -85,9 +85,10 @@ Stated plainly rather than omitted.
    on a machine with Docker: `make up && make test-e2e`. Every task pack is
    marked `validated-here` or `validate-on-host`; nothing is marked done on
    unexecuted code.
-2. **`go.sum` is not committed.** Egress policy in the build environment blocks
-   `google.golang.org`, so `go mod tidy` could not run. First action on
-   checkout: `cd go && go mod tidy`. CI does this explicitly and fails on a diff.
+2. **A developer-local `go.work` can shadow the module.** The repository ignores
+   `go/go.work` so container-only replacements never ship. The Makefile runs Go
+   gates with `GOWORK=off`, which keeps normal checkouts on the committed
+   `go.mod` and `go.sum`.
 3. **Tier 2 embeddings are optional and untested against a real model.**
    `fastembed` is an optional dependency; the degraded fuzzy-only path is what
    the suite exercises. The degradation is recorded in the evidence string

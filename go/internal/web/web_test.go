@@ -293,6 +293,43 @@ func TestSummaryReportsTheQuarantineRate(t *testing.T) {
 	}
 }
 
+func TestSummaryPosturePrioritizesMissingFileAlerts(t *testing.T) {
+	summary := Summary{
+		Arrivals:       12,
+		Dispatched:     8,
+		Quarantined:    2,
+		OpenAlerts:     1,
+		Mismatches:     3,
+		QuarantineRate: 0.20,
+	}
+
+	posture := summary.Posture()
+	if posture.Level != "INCIDENT" || posture.Label != "Action required" {
+		t.Fatalf("posture = %+v", posture)
+	}
+	if !strings.Contains(posture.Action, "missing-file alerts") {
+		t.Fatalf("posture action does not point to alerts: %+v", posture)
+	}
+	if len(posture.Rationale) < 3 {
+		t.Fatalf("posture should explain its inputs: %+v", posture)
+	}
+}
+
+func TestSummaryPostureCallsOutQuarantineRate(t *testing.T) {
+	summary := Summary{Arrivals: 20, Dispatched: 18, Quarantined: 2, QuarantineRate: 0.10}
+
+	posture := summary.Posture()
+	if posture.Level != "ATTENTION" || posture.Label != "Rate above target" {
+		t.Fatalf("posture = %+v", posture)
+	}
+	if posture.QuarantineRateTarget != 0.05 {
+		t.Fatalf("target = %f", posture.QuarantineRateTarget)
+	}
+	if !strings.Contains(strings.Join(posture.Rationale, " "), "target 5%") {
+		t.Fatalf("posture should name the target: %+v", posture)
+	}
+}
+
 // --- HTTP ------------------------------------------------------------------
 
 func newServer(t *testing.T, s *Store) (*Server, *bus.Memory) {
@@ -328,7 +365,10 @@ func TestBoardPageRenders(t *testing.T) {
 		t.Fatalf("status %d", rec.Code)
 	}
 	body := rec.Body.String()
-	for _, want := range []string{"Harbormaster", "MCP_TRD_20260831.csv", "CLNT004", "2026-08-28"} {
+	for _, want := range []string{
+		"Harbormaster", "MCP_TRD_20260831.csv", "CLNT004", "2026-08-28",
+		"Operational posture", "Schedule drift",
+	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("board is missing %q", want)
 		}
@@ -409,6 +449,51 @@ func TestDecisionEndpointPublishesDownstream(t *testing.T) {
 	}
 	if decoded.GetReviewer() != "r.chen" || decoded.GetDecision() != "APPROVE" {
 		t.Fatalf("decision lost detail: %+v", &decoded)
+	}
+}
+
+func TestOpsEndpointReturnsOperationalPosture(t *testing.T) {
+	s, db := testStore(t)
+	ctx := context.Background()
+	seedArrival(t, db, "arr-q", "mystery.csv")
+	msg := classified("arr-q")
+	msg.Disposition = hmv1.ArrivalDisposition_ARRIVAL_DISPOSITION_QUARANTINED
+	if err := s.ProjectClassified(ctx, msg); err != nil {
+		t.Fatal(err)
+	}
+	srv, _ := newServer(t, s)
+
+	rec := httptest.NewRecorder()
+	srv.Routes().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/ops", nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var got OpsSnapshot
+	if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Status != "ready" || got.Posture.Level != "ATTENTION" {
+		t.Fatalf("unexpected ops snapshot: %+v", got)
+	}
+	if got.Summary.Quarantined != 1 || got.Posture.QuarantineRateTarget != 0.05 {
+		t.Fatalf("snapshot lost operational context: %+v", got)
+	}
+}
+
+func TestMalformedAlertAcknowledgeBodyReturnsBadRequest(t *testing.T) {
+	srv := NewServer(Options{Log: logging.New("test")})
+	body := strings.NewReader(`{"reviewer":`)
+	rec := httptest.NewRecorder()
+
+	srv.Routes().ServeHTTP(rec,
+		httptest.NewRequest(http.MethodPost, "/api/alerts/alert-1/acknowledge", body))
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status %d: %s", rec.Code, rec.Body.String())
+	}
+	if !strings.Contains(rec.Body.String(), "malformed alert acknowledgement body") {
+		t.Fatalf("response should explain the malformed body: %s", rec.Body.String())
 	}
 }
 

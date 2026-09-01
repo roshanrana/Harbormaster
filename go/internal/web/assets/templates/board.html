@@ -16,6 +16,17 @@
   <div><dt>Missing files</dt><dd class="{{if .Summary.OpenAlerts}}bad{{end}}">{{.Summary.OpenAlerts}}</dd></div>
 </dl>
 
+<div class="posture {{postureClass .Posture.Level}}" aria-label="Operational posture: {{.Posture.Label}}">
+  <div>
+    <span>Operational posture</span>
+    <strong>{{.Posture.Label}}</strong>
+  </div>
+  <p>{{.Posture.Action}}</p>
+  <ul>
+    {{range .Posture.Rationale}}<li>{{.}}</li>{{end}}
+  </ul>
+</div>
+
 <div class="panel">
   <table>
     <thead>
