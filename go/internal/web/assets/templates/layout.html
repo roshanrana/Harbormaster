@@ -1,0 +1,27 @@
+{{define "layout"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · Harbormaster</title>
+<link rel="stylesheet" href="/static/console.css">
+<script src="/static/htmx.min.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <h1>Harbormaster</h1>
+      <p>File arrival control for reconciliation</p>
+    </div>
+    <nav>
+      <a href="/" class="{{if eq .Nav "board"}}on{{end}}">Arrivals <span class="count">{{.Summary.Arrivals}}</span></a>
+      <a href="/quarantine" class="{{if eq .Nav "quarantine"}}on{{end}}">Review queue <span class="count">{{.Summary.Quarantined}}</span></a>
+      <a href="/slots" class="{{if eq .Nav "slots"}}on{{end}}">Slots <span class="count">{{.Summary.OpenAlerts}}</span></a>
+    </nav>
+    <footer>Quarantine rate {{pct .Summary.QuarantineRate}}<br>target 5% or below</footer>
+  </aside>
+  <main class="main">{{template "content" .}}</main>
+</div>
+</body>
+</html>{{end}}

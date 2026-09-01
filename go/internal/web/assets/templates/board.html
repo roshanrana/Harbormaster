@@ -1,0 +1,32 @@
+{{define "board"}}{{template "layout" .}}{{end}}
+{{define "content"}}
+<div class="head">
+  <h2>Arrivals</h2>
+  <span class="sub">newest first</span>
+  <span class="live"><span class="dot"></span>updating every 5s</span>
+</div>
+<p class="lede">Every file and queue message that has landed, with the client it was attributed to and the business day its contents actually represent.</p>
+
+<dl class="tide">
+  <div><dt>Dispatched</dt><dd>{{.Summary.Dispatched}}</dd></div>
+  <div><dt>In review</dt><dd class="{{if .Summary.Quarantined}}flag{{end}}">{{.Summary.Quarantined}}</dd></div>
+  <div><dt>Rejected</dt><dd class="{{if .Summary.Rejected}}bad{{end}}">{{.Summary.Rejected}}</dd></div>
+  <div><dt>Assignments</dt><dd>{{.Summary.Assignments}}</dd></div>
+  <div><dt>Date disagreements</dt><dd class="{{if .Summary.Mismatches}}flag{{end}}">{{.Summary.Mismatches}}</dd></div>
+  <div><dt>Missing files</dt><dd class="{{if .Summary.OpenAlerts}}bad{{end}}">{{.Summary.OpenAlerts}}</dd></div>
+</dl>
+
+<div class="panel">
+  <table>
+    <thead>
+      <tr>
+        <th>File</th><th>Client</th><th>Domain</th><th>Value date</th>
+        <th>Rows in</th><th>State</th><th class="num">Confidence</th>
+      </tr>
+    </thead>
+    <tbody hx-get="/" hx-trigger="every 5s" hx-swap="outerHTML">
+      {{template "arrival_rows" .Data}}
+    </tbody>
+  </table>
+</div>
+{{end}}

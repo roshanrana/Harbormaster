@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS projection_offset;
+DROP TABLE IF EXISTS alert;
+DROP TABLE IF EXISTS assignment;
+ALTER TABLE arrival DROP COLUMN IF EXISTS client_id;
+ALTER TABLE arrival DROP COLUMN IF EXISTS domain;
+ALTER TABLE arrival DROP COLUMN IF EXISTS value_date;
+ALTER TABLE arrival DROP COLUMN IF EXISTS overall_confidence;
+ALTER TABLE arrival DROP COLUMN IF EXISTS mismatch_flagged;
+ALTER TABLE arrival DROP COLUMN IF EXISTS classified_at;

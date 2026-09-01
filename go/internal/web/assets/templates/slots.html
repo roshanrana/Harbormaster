@@ -1,0 +1,46 @@
+{{define "slots"}}{{template "layout" .}}{{end}}
+{{define "content"}}
+<div class="head"><h2>Slots</h2><span class="sub">one per client, domain and value date</span></div>
+<p class="lede">A slot is one reconciliation waiting to happen. It opens when the first side arrives and completes when both are present. Slots stay open for the client's late-arrival window before they become a missing-file alert.</p>
+
+{{if .Data.Alerts}}
+<div class="panel">
+  <h3>Expected files that never arrived</h3>
+  <table>
+    <thead><tr><th>Client</th><th>Domain</th><th>Value date</th><th>Missing side</th><th>Expectation</th><th>Deadline</th></tr></thead>
+    <tbody>
+      {{range .Data.Alerts}}
+      <tr>
+        <td>{{.ClientID}}</td><td>{{.Domain}}</td><td>{{.ValueDate}}</td>
+        <td><span class="pill pill-bad">{{.MissingSide}}</span></td>
+        <td class="id">{{.ExpectationID}}</td>
+        <td>{{ago .Deadline}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}
+
+<div class="panel">
+  <h3>Reconciliation slots</h3>
+  <table>
+    <thead><tr><th>Client</th><th>Domain</th><th>Value date</th><th>State</th><th>Internal GL</th><th>External client</th><th>Open until</th></tr></thead>
+    <tbody>
+      {{if not .Data.Slots}}
+      <tr><td colspan="7"><div class="empty"><p>No slots yet.</p>
+        <p class="hint">A slot appears as soon as one side of a reconciliation lands.</p></div></td></tr>
+      {{end}}
+      {{range .Data.Slots}}
+      <tr>
+        <td>{{.ClientID}}</td><td>{{.Domain}}</td><td>{{.ValueDate}}</td>
+        <td><span class="pill {{stateClass .State}}">{{.State}}</span></td>
+        <td class="id">{{if .Side1Arrival}}{{shortID .Side1Arrival}}{{else}}waiting{{end}}</td>
+        <td class="id">{{if .Side2Arrival}}{{shortID .Side2Arrival}}{{else}}waiting{{end}}</td>
+        <td>{{ago .Deadline}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
+</div>
+{{end}}

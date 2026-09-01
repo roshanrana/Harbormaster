@@ -1,15 +1,15 @@
 # STATE — Harbormaster
 
 **Phase:** 5 — Build
-**Status:** M3 complete; 235 Python tests + 10 Go packages green
+**Status:** M5 + M6 complete; 235 Python tests + 12 Go packages green
 **Updated:** 2026-08-30
 
 ## Now / next
 
-- **Now:** Full three-tier mapping ladder live and wired into the Inspector.
-  Escalation is one-way; the template cache means a repeated layout costs nothing.
-- **Next:** T-039 control plane read models and API, T-038 review queue, then
-  the UI (T-040/041/042) and the scenario suite (T-045).
+- **Now:** Control plane, review queue and the full console are live. Board,
+  arrival provenance view, quarantine review and slot board all render offline.
+- **Next:** T-045 scenario suite over the twelve fixtures, T-014 e2e, T-017
+  queue ingress, then the live Claude tier and the documentation set.
 
 ## Decisions taken at intake
 
@@ -63,6 +63,8 @@
 | 2026-08-31 | T-043/044 | Corpus generator, 8 venue vocabularies, 12 adversarial fixtures |
 | 2026-08-31 | T-019..T-023 | Excel, XML, FIXML, JSON and email parsers; all six formats live |
 | 2026-08-31 | T-029/030 | Tier 2 fuzzy+embedding, Tier 3 seam, durable template cache |
+| 2026-09-01 | T-039/038 | Projector, REST + SSE API, four-eyes review enforced by the schema |
+| 2026-09-01 | T-040/041/042 | Console: board, provenance detail, review queue, slot board |
 
 ## Blockers
 

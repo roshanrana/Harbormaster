@@ -1,0 +1,54 @@
+{{define "arrival_rows"}}
+<tbody hx-get="/" hx-trigger="every 5s" hx-swap="outerHTML">
+{{if not .}}
+  <tr><td colspan="7"><div class="empty">
+    <p>Nothing has landed yet.</p>
+    <p class="hint">Drop a file into the landing directory, or run <code>make demo</code>.</p>
+  </div></td></tr>
+{{end}}
+{{range .}}
+  <tr>
+    <td><a class="file" href="/arrivals/{{.ArrivalID}}">{{.OriginalName}}</a>
+        <div class="id">{{shortID .ArrivalID}} · {{.Ingress}}</div></td>
+    <td>{{dash .ClientID}}</td>
+    <td>{{dash .Domain}}</td>
+    <td>{{dash .ValueDate}}{{if .MismatchFlagged}}<span class="flag-dot" title="filename and contents disagree"></span>{{end}}</td>
+    <td>{{ago .DetectedAt}}</td>
+    <td><span class="pill {{dispositionClass .Disposition}}">{{dash .Disposition}}</span></td>
+    <td class="num">
+      <div class="conf {{confClass .Confidence}}">
+        <span class="bar"><span style="width:{{pct .Confidence}}"></span></span>
+        <span class="val">{{conf .Confidence}}</span>
+      </div>
+    </td>
+  </tr>
+{{end}}
+</tbody>
+{{end}}
+
+{{define "quarantine_rows"}}
+<tbody hx-get="/quarantine" hx-trigger="every 10s" hx-swap="outerHTML">
+{{if not .}}
+  <tr><td colspan="6"><div class="empty">
+    <p>Nothing is waiting for a decision.</p>
+    <p class="hint">Files land here when Harbormaster is not confident enough to route them on its own.</p>
+  </div></td></tr>
+{{end}}
+{{range .}}
+  <tr>
+    <td><a class="file" href="/arrivals/{{.ArrivalID}}">{{.OriginalName}}</a>
+        <div class="id">{{shortID .ArrivalID}}</div></td>
+    <td>{{dash .ClientID}}</td>
+    <td>{{dash .Domain}}</td>
+    <td>{{dash .ValueDate}}</td>
+    <td><span class="pill {{dispositionClass .Disposition}}">{{.Disposition}}</span></td>
+    <td class="num">
+      <div class="conf {{confClass .Confidence}}">
+        <span class="bar"><span style="width:{{pct .Confidence}}"></span></span>
+        <span class="val">{{conf .Confidence}}</span>
+      </div>
+    </td>
+  </tr>
+{{end}}
+</tbody>
+{{end}}

@@ -1,0 +1,11 @@
+{{define "quarantine"}}{{template "layout" .}}{{end}}
+{{define "content"}}
+<div class="head"><h2>Review queue</h2><span class="sub">oldest first</span></div>
+<p class="lede">Harbormaster holds a file here when it cannot answer a question confidently enough to route it. Each entry names what it could not decide. Nothing leaves this queue without a recorded decision.</p>
+<div class="panel">
+  <table>
+    <thead><tr><th>File</th><th>Client</th><th>Domain</th><th>Value date</th><th>State</th><th class="num">Confidence</th></tr></thead>
+    {{template "quarantine_rows" .Data}}
+  </table>
+</div>
+{{end}}

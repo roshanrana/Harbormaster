@@ -1,0 +1,141 @@
+{{define "arrival"}}{{template "layout" .}}{{end}}
+{{define "content"}}
+{{$v := .Data}}
+<div class="head">
+  <h2>{{$v.Arrival.OriginalName}}</h2>
+  <span class="sub">{{shortID $v.Arrival.ArrivalID}}</span>
+  <span class="live"><span class="pill {{dispositionClass $v.Arrival.Disposition}}">{{dash $v.Arrival.Disposition}}</span></span>
+</div>
+
+{{if $v.ValueDate.Mismatch}}
+<div class="disagree">
+  <strong>The filename and the contents disagree about the value date.</strong>
+  <p>The name says {{$v.ValueDate.FromFilename}}; the contents settle on {{$v.ValueDate.Resolved}}. Harbormaster used the contents. If this keeps happening for the same client, their batch is running late and their schedule needs looking at.</p>
+</div>
+{{end}}
+
+<div class="cols">
+  <div>
+    <div class="panel">
+      <h3>How the value date was decided</h3>
+      <dl class="facts">
+        <div><dt>Resolved</dt><dd>{{dash $v.ValueDate.Resolved}}</dd></div>
+        <div><dt>Method</dt><dd>{{dash $v.ValueDate.Method}}</dd></div>
+        <div><dt>From the filename</dt><dd>{{dash $v.ValueDate.FromFilename}}</dd></div>
+        <div><dt>From the contents</dt><dd>{{if $v.ValueDate.FromContent}}{{range $i, $d := $v.ValueDate.FromContent}}{{if $i}}, {{end}}{{$d}}{{end}}{{else}}—{{end}}</dd></div>
+        <div><dt>Day it landed</dt><dd>{{dash $v.ValueDate.FromArrival}}</dd></div>
+        <div><dt>Calendar used</dt><dd>{{dash $v.ValueDate.CalendarID}}</dd></div>
+        <div><dt>Confidence</dt><dd>{{conf $v.ValueDate.Confidence}}</dd></div>
+      </dl>
+      {{if $v.ValueDate.Notes}}<p class="note" style="padding:0 16px 14px">{{$v.ValueDate.Notes}}</p>{{end}}
+    </div>
+
+    <div class="panel">
+      <h3>Where each column went</h3>
+      <table class="prov">
+        <thead>
+          <tr><th>Column in the file</th><th>Canonical field</th><th>Decided by</th><th class="num">Confidence</th><th>Evidence</th></tr>
+        </thead>
+        <tbody>
+          {{if not $v.Mappings}}
+          <tr><td colspan="5"><div class="empty"><p>No column mappings were recorded.</p>
+            <p class="hint">This arrival was rejected before mapping ran.</p></div></td></tr>
+          {{end}}
+          {{range $v.Mappings}}
+          <tr>
+            <td class="src">{{.SourceField}}</td>
+            <td>{{if .Resolved}}<span class="canon">{{.CanonicalField}}</span>{{else}}<span class="unmapped">not mapped</span>{{end}}</td>
+            <td><span class="tier {{.TierClass}}">{{.Tier}}</span></td>
+            <td class="num">{{if .Resolved}}<div class="conf {{confClass .Confidence}}">
+              <span class="bar"><span style="width:{{pct .Confidence}}"></span></span>
+              <span class="val">{{conf .Confidence}}</span></div>{{else}}—{{end}}</td>
+            <td class="why">{{.Evidence}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <h3>The file</h3>
+      <dl class="facts">
+        <div><dt>Client</dt><dd>{{dash $v.Arrival.ClientID}}</dd></div>
+        <div><dt>Domain</dt><dd>{{dash $v.Arrival.Domain}}</dd></div>
+        <div><dt>Venue</dt><dd>{{dash $v.SourceHint}}</dd></div>
+        <div><dt>Accounts</dt><dd>{{if $v.AccountIDs}}{{range $i, $a := $v.AccountIDs}}{{if $i}}<br>{{end}}{{$a}}{{end}}{{else}}—{{end}}</dd></div>
+        <div><dt>Rows</dt><dd>{{$v.RowCount}}</dd></div>
+        {{if $v.SubBatch}}<div><dt>Sub-batch</dt><dd>{{$v.SubBatch}}</dd></div>{{end}}
+        <div><dt>Arrived</dt><dd>{{ago $v.Arrival.DetectedAt}}</dd></div>
+        <div><dt>Size</dt><dd>{{$v.Arrival.SizeBytes}} bytes</dd></div>
+        <div><dt>Template</dt><dd>{{dash $v.Fingerprint}}</dd></div>
+        <div><dt>Content hash</dt><dd>{{shortID $v.Arrival.ContentSHA256}}</dd></div>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <h3>Mapping tiers used</h3>
+      <dl class="facts">
+        {{range $tier, $n := $v.TierCounts}}
+        <div><dt><span class="tier tier-{{$tier}}">{{$tier}}</span></dt><dd>{{$n}}</dd></div>
+        {{end}}
+      </dl>
+      <p class="note" style="padding:0 16px 14px">Dictionary hits cost nothing. Model adjudication is the last resort, and once a layout is learned it is cached against the template fingerprint.</p>
+    </div>
+
+    {{if $v.ReviewReasons}}
+    <div class="panel">
+      <h3>Outstanding questions</h3>
+      <ul class="reasons">
+        {{range $v.ReviewReasons}}<li>{{.}}</li>{{end}}
+      </ul>
+    </div>
+    {{end}}
+
+    {{if $v.Review}}
+    <div class="panel">
+      <h3>Decision</h3>
+      <dl class="facts">
+        <div><dt>Outcome</dt><dd>{{$v.Review.Decision}}</dd></div>
+        <div><dt>Reviewed by</dt><dd>{{$v.Review.Reviewer}}</dd></div>
+        {{if $v.Review.CorrectedClientID}}<div><dt>Client set to</dt><dd>{{$v.Review.CorrectedClientID}}</dd></div>{{end}}
+        {{if $v.Review.CorrectedValueDate}}<div><dt>Value date set to</dt><dd>{{$v.Review.CorrectedValueDate}}</dd></div>{{end}}
+        {{if $v.Review.Notes}}<div><dt>Note</dt><dd>{{$v.Review.Notes}}</dd></div>{{end}}
+      </dl>
+    </div>
+    {{else if ne $v.Arrival.Disposition "DISPATCHED"}}
+    <div class="panel">
+      <h3>Record a decision</h3>
+      <form class="review" hx-post="/api/quarantine/{{$v.Arrival.ArrivalID}}/decision"
+            hx-ext="json-enc" hx-swap="none">
+        <label for="reviewer">Your name</label>
+        <input id="reviewer" name="reviewer" required placeholder="who is deciding this">
+
+        <label for="decision">Outcome</label>
+        <select id="decision" name="decision">
+          <option value="APPROVE">Release as classified</option>
+          <option value="CORRECT">Correct, then release</option>
+          <option value="REJECT">Reject the file</option>
+        </select>
+
+        <label for="client">Client, if it needs correcting</label>
+        <input id="client" name="corrected_client_id" placeholder="{{dash $v.Arrival.ClientID}}">
+
+        <label for="vd">Value date, if it needs correcting</label>
+        <input id="vd" name="corrected_value_date" placeholder="{{dash $v.ValueDate.Resolved}}">
+
+        <label for="notes">Why</label>
+        <textarea id="notes" name="notes" placeholder="what you checked, and what convinced you"></textarea>
+
+        <div class="actions">
+          <button type="submit" class="primary">Record decision</button>
+          <a href="/quarantine"><button type="button">Back to queue</button></a>
+        </div>
+        <p class="note">Your name is written into the audit chain alongside the decision. Nothing here can be changed afterwards.</p>
+      </form>
+    </div>
+    {{end}}
+  </div>
+</div>
+{{end}}
