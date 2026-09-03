@@ -4,7 +4,7 @@ Intelligent file-arrival control for financial reconciliation.
 
 ---
 
-## Interview Snapshot
+## Project Snapshot
 
 | | |
 |---|---|
