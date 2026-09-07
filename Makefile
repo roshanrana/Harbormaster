@@ -78,6 +78,15 @@ test-live: ## Opt-in test against the real Anthropic API (needs ANTHROPIC_API_KE
 	cd python && HM_LIVE=1 uv run pytest ../tests/live -v
 
 # ---------------------------------------------------------------------------
+# Bench. Replays a fixed, sha256-pinned source set through onboarding and
+# writes the observed numbers to metrics/headline.json. Offline, seeded, no
+# API key: the model tier is the deterministic stand-in, and the file says so.
+# ---------------------------------------------------------------------------
+.PHONY: bench
+bench: ## Replay the fixed source set through onboarding; write metrics/headline.json
+	$(PY) python ../bench/onboard.py --out ../metrics/headline.json
+
+# ---------------------------------------------------------------------------
 # Runtime. Requires Docker; not exercisable in the build container (ADR-018).
 # ---------------------------------------------------------------------------
 .PHONY: up

@@ -1,0 +1,38 @@
+[
+  {
+    "RecordID": "01BENCH0000000000000000001",
+    "ArrivalID": "arr-bench-0001",
+    "At": "2026-08-31T06:00:00Z",
+    "Component": "portwatch",
+    "DecisionType": "ARRIVAL_DETECTED",
+    "InputsJSON": "{\"name\":\"MCP_TRD_20260831.csv\"}",
+    "OutcomeJSON": "{\"sha256\":\"3f1c\"}",
+    "Actor": "system",
+    "PrevHash": "",
+    "RecordHash": "88b43470aa610bbc241bd98e74cd33b3be2a9f0d50f85d6475114b40eef94c2b"
+  },
+  {
+    "RecordID": "01BENCH0000000000000000002",
+    "ArrivalID": "arr-bench-0001",
+    "At": "2026-08-31T06:01:00Z",
+    "Component": "inspector",
+    "DecisionType": "CLASSIFIED",
+    "InputsJSON": "{\"filename_date\":\"2026-08-31\"}",
+    "OutcomeJSON": "{\"disposition\":\"DISPATCHED\",\"value_date\":\"2026-08-28\"}",
+    "Actor": "system",
+    "PrevHash": "88b43470aa610bbc241bd98e74cd33b3be2a9f0d50f85d6475114b40eef94c2b",
+    "RecordHash": "8f9fe2b2421dd66d1b337216287a8b501ea03f5dd1fd6bcab67b608f6a38bd6a"
+  },
+  {
+    "RecordID": "01BENCH0000000000000000003",
+    "ArrivalID": "arr-bench-0001",
+    "At": "2026-08-31T06:02:00Z",
+    "Component": "berthmaster",
+    "DecisionType": "BERTH_ASSIGNED",
+    "InputsJSON": "{\"slot\":\"CLNT004/TRADE/2026-08-28\"}",
+    "OutcomeJSON": "{\"instruction_id\":\"bi-0001\"}",
+    "Actor": "system",
+    "PrevHash": "8f9fe2b2421dd66d1b337216287a8b501ea03f5dd1fd6bcab67b608f6a38bd6a",
+    "RecordHash": "2bff5fd3043582f4d2148faa8a6802b5687186ce87ba2e4b572d86df217623ec"
+  }
+]

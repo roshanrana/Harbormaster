@@ -185,19 +185,28 @@ func (c *Chain) Verify(ctx context.Context, arrivalID string) (*Break, error) {
 	if err != nil {
 		return nil, err
 	}
+	return VerifyRecords(arrivalID, records), nil
+}
+
+// VerifyRecords walks an already-loaded chain, in order, and returns the
+// first break or nil. It is the pure half of Verify: the same walk runs over
+// records read from Postgres and over a recorded chain in a file, so the
+// offline bench (cmd/auditcheck) exercises exactly the check the control
+// plane runs rather than a reimplementation that could drift.
+func VerifyRecords(arrivalID string, records []Record) *Break {
 	prev := ""
 	for i, r := range records {
 		if r.PrevHash != prev {
 			return &Break{ArrivalID: arrivalID, RecordID: r.RecordID, Position: i,
-				Reason: "prev_hash does not match the preceding record"}, nil
+				Reason: "prev_hash does not match the preceding record"}
 		}
 		if want := ComputeHash(r); want != r.RecordHash {
 			return &Break{ArrivalID: arrivalID, RecordID: r.RecordID, Position: i,
-				Reason: "record_hash does not match the record contents"}, nil
+				Reason: "record_hash does not match the record contents"}
 		}
 		prev = r.RecordHash
 	}
-	return nil, nil
+	return nil
 }
 
 // VerifyAll walks every chain in the log and returns all breaks found.

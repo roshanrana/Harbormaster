@@ -1,0 +1,367 @@
+{
+  "_about": [
+    "Hand-labelled key for bench/onboard.py. Every label was derived from the source",
+    "file's column semantics (the venue vocabularies in python/src/corpus/generate.py and",
+    "the parser header conventions) and the canonical schema in",
+    "python/src/inspector/mapping/canonical.py. Nothing here was produced by running the",
+    "mapper. A null label means the correct outcome is to leave the column unassigned:",
+    "value_date and client_id are populated by Harbormaster, never taken from a column;",
+    "surplus price columns (prior settle, mark, theoretical) have no canonical slot; and a",
+    "second instrument identifier (ISIN beside Symbol) has nowhere to go once the first is",
+    "taken. Quarantine labels follow FR-30 and REQUIRED_BY_DOMAIN: a file is expected to be",
+    "held when its client cannot be determined or a field the domain requires is absent.",
+    "The seed and sha256 values pin the exact bytes that were labelled; the harness refuses",
+    "to score a file whose bytes differ (xlsx carries a save timestamp, so it is unpinned).",
+    "An 'either' group lists columns that are all legitimate carriers of one canonical field",
+    "(Symbol and ISIN both identify the instrument): exactly one must take it, the rest stay",
+    "unassigned, and the group is scored on that shape rather than on which carrier was chosen."
+  ],
+  "seed": 20260831,
+  "either": {
+    "FIXML_EXEC_REPORTS": {"instrument_id": ["Symbol", "ISIN"]},
+    "JSON_TRADE_EXTRACT": {"instrument_id": ["instrument.symbol", "instrument.isin"]}
+  },
+  "layouts": {
+    "CME_TRADES": {
+      "Account ID": "account_id",
+      "Symbol": "instrument_id",
+      "TradeID": "trade_id",
+      "Trade Date": "trade_date",
+      "Value Date": null,
+      "Qty": "quantity",
+      "Exec Price": "trade_price",
+      "Settle Price": "settlement_price",
+      "Prior Settle Price": null,
+      "Net Amount": "net_amount",
+      "CCY": "currency",
+      "B/S": "side"
+    },
+    "CME_BARE_PRICES": {
+      "Account ID": "account_id",
+      "Symbol": "instrument_id",
+      "TradeID": "trade_id",
+      "Trade Date": "trade_date",
+      "Value Date": null,
+      "Qty": "quantity",
+      "Price": "trade_price",
+      "Px": "settlement_price",
+      "Net Amount": "net_amount",
+      "CCY": "currency",
+      "B/S": "side"
+    },
+    "GL_EXTRACT": {
+      "gl_account": "account_id",
+      "client_id": null,
+      "instrument_id": "instrument_id",
+      "trade_id": "trade_id",
+      "trade_date": "trade_date",
+      "value_date": null,
+      "quantity": "quantity",
+      "trade_price": "trade_price",
+      "settlement_price": "settlement_price",
+      "net_amount": "net_amount",
+      "currency": "currency",
+      "side": "side"
+    },
+    "ICE_TRADES": {
+      "ClearingAccount": "account_id",
+      "ContractCode": "instrument_id",
+      "DealID": "trade_id",
+      "TradeDt": "trade_date",
+      "SettlementDate": null,
+      "Contracts": "quantity",
+      "Price": "trade_price",
+      "Settle Px": "settlement_price",
+      "Mark Price": null,
+      "Prior Settle Px": null,
+      "NetMoney": "net_amount",
+      "Currency": "currency",
+      "BuySell": "side"
+    },
+    "HKEX_TRADES": {
+      "Acct": "account_id",
+      "Ticker": "instrument_id",
+      "Ticket No": "trade_id",
+      "Business Date": "trade_date",
+      "Settlement Date": null,
+      "Shares": "quantity",
+      "Avg Price": "trade_price",
+      "Closing Price": "settlement_price",
+      "Net Proceeds": "net_amount",
+      "Curr": "currency",
+      "Action": "side"
+    },
+    "LSEG_CUSTODY_WORKBOOK": {
+      "Custody Account": "account_id",
+      "SEDOL": "instrument_id",
+      "Reference": "trade_id",
+      "Trade Date": "trade_date",
+      "Valuation Date": null,
+      "Units": "quantity",
+      "Clean Price": "trade_price",
+      "Valuation Price": "settlement_price",
+      "Consideration": "gross_amount",
+      "Currency Code": "currency",
+      "Transaction Type": "side"
+    },
+    "EMAIL_CASH_ADVICE": {
+      "Account ID": "account_id",
+      "Net Amount": "net_amount",
+      "Currency": "currency",
+      "Value Date": null,
+      "Direction": "side",
+      "Extraction Confidence": null,
+      "Source Line": null
+    },
+    "OPAQUE_EXPORT": {
+      "Alpha": null,
+      "Beta": null,
+      "Gamma": null,
+      "Delta": null
+    },
+    "EUREX_XML": {
+      "@id": "trade_id",
+      "@side": "side",
+      "Account": "account_id",
+      "Instrument": "instrument_id",
+      "TradeDt": "trade_date",
+      "ValueDt": null,
+      "Quantity": "quantity",
+      "DealPrice": "trade_price",
+      "SettlPric": "settlement_price",
+      "SettlementAmount": "net_amount",
+      "SettlCcy": "currency"
+    },
+    "FIXML_EXEC_REPORTS": {
+      "ExecID": "trade_id",
+      "Side": "side",
+      "LastQty": "quantity",
+      "LastPx": "trade_price",
+      "Settlement Price": "settlement_price",
+      "NetMoney": "net_amount",
+      "Trade Date": "trade_date",
+      "Settlement Date": null,
+      "Currency": "currency",
+      "Symbol": "instrument_id",
+      "ISIN": null,
+      "Account ID": "account_id"
+    },
+    "JSON_TRADE_EXTRACT": {
+      "tradeId": "trade_id",
+      "account.id": "account_id",
+      "account.type": null,
+      "instrument.symbol": "instrument_id",
+      "instrument.isin": null,
+      "dates.tradeDate": "trade_date",
+      "dates.valueDate": null,
+      "economics.quantity": "quantity",
+      "economics.tradePrice": "trade_price",
+      "economics.settlementPrice": "settlement_price",
+      "economics.netAmount": "net_amount",
+      "economics.currency": "currency",
+      "side": "side",
+      "messageType": null,
+      "venue": "source_system"
+    },
+    "NASDAQ_TRADES": {
+      "AccountNumber": "account_id",
+      "Symbol": "instrument_id",
+      "ExecID": "trade_id",
+      "TransactionDate": "trade_date",
+      "SettleDate": null,
+      "Shares": "quantity",
+      "LastPx": "trade_price",
+      "ClosingPrice": "settlement_price",
+      "Proceeds": "net_amount",
+      "Currency": "currency",
+      "Side": "side"
+    },
+    "CBOE_OPTIONS": {
+      "Portfolio": "account_id",
+      "OCC Symbol": "instrument_id",
+      "Ticket": "trade_id",
+      "Activity Date": "trade_date",
+      "Position Date": null,
+      "Contracts": "quantity",
+      "Trade Price": "trade_price",
+      "Official Settlement Price": "settlement_price",
+      "Theoretical Price": null,
+      "Market Value": "market_value",
+      "CCY": "currency",
+      "Long/Short": "side"
+    }
+  },
+  "files": [
+    {
+      "path": "01_late_arrival/MCP_TRD_20260831.csv",
+      "origin": "scenario:late_arrival",
+      "sha256": "44d3570a72ede4450fe658dd3d32d8d316f8bbc5492c7eeb41eccd36421c80c5",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "filename pattern and account ids both name CLNT004; TRADE fields all present"
+    },
+    {
+      "path": "01_late_arrival/GL_CLNT004_TRADE_20260828.csv",
+      "origin": "scenario:late_arrival",
+      "sha256": "af705dc7e4565f63684c8ca232fe1748824c92d0b9c379685d7d14f6c03428ef",
+      "layout": "GL_EXTRACT",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "no filename pattern, but account ids identify CLNT004; domain is not stated so no field is required of it"
+    },
+    {
+      "path": "02_date_disagreement/MCP_TRD_20260827.csv",
+      "origin": "scenario:filename_content_disagreement",
+      "sha256": "3cf34855540ef833c8151698751aaa2911e37344e80725809861fa2978dc257f",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "a filename/content date disagreement is flagged, not held (FR-12)"
+    },
+    {
+      "path": "03_exact_duplicate/MCP_TRD_20260828.csv",
+      "origin": "scenario:exact_duplicate",
+      "sha256": "e9421ecf51ae9898ef32becd8469e6aa89b9fdd77df7606d60fabda07cde7dce",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "first delivery; the byte-identical resend is Portwatch's job and is not replayed here"
+    },
+    {
+      "path": "04_redelivery/MCP_TRD_20260828.csv",
+      "origin": "scenario:redelivery_under_new_name",
+      "sha256": "76c16c2c59ab6324ac0b46cb16edeb03e3da05a7962afa32bf544ce944cfa179",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "first delivery; the renamed resend has identical bytes and is not replayed here"
+    },
+    {
+      "path": "05_correction/MCP_TRD_20260828.csv",
+      "origin": "scenario:correction_after_dispatch",
+      "sha256": "a6e8dc8e583a09ece8ed26afbc1b3b0687bf27bb3be95b36a9a685cdd6acfcbb",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "original of the corrected pair"
+    },
+    {
+      "path": "05_correction/amended/MCP_TRD_20260828.csv",
+      "origin": "scenario:correction_after_dispatch",
+      "sha256": "805f5f7f05878e8b28d0b0a998e8c7309b7198f6aba1c0b26b5b93fada763835",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "amendment; supersession is Berthmaster's job, classification is the same as the original"
+    },
+    {
+      "path": "06_multi_date/MCP_TRD_20260831.csv",
+      "origin": "scenario:multi_date_file",
+      "sha256": "327b340a6332aeb013a5be41a593148eb43a4cd928884af3ad859bddf9b16fe9",
+      "layout": "CME_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "three value dates become three sub-batches (FR-16); each is a routable CLNT004 trade file"
+    },
+    {
+      "path": "07_four_prices/ICE_TRD_20260828.csv",
+      "origin": "scenario:four_price_columns",
+      "sha256": "d57dd2c2330094f376651b99fcbf26d04f0e7d6878aaee02889158b378059296",
+      "layout": "ICE_TRADES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "account 8842-00119 identifies CLNT004; Mark Price and Prior Settle Px are surplus and must stay unassigned"
+    },
+    {
+      "path": "08_bare_price/MCP_TRD_20260828.csv",
+      "origin": "scenario:bare_price_header",
+      "sha256": "dd706fef62f1cb6fbc4ec2b7a60c8b5877999c5fe3af018e776e0c0c14da1db4",
+      "layout": "CME_BARE_PRICES",
+      "client": "CLNT004",
+      "expected_quarantine": false,
+      "reason": "Price is written from the execution price and Px from the settlement price by the generator"
+    },
+    {
+      "path": "09_email_cash/ardent-cash-2026-08-28.txt",
+      "origin": "scenario:email_cash_advice",
+      "sha256": "e15a0c3756020ac18cbdb2f8d07cae8b5087b46af345e0652443af7a970a789b",
+      "layout": "EMAIL_CASH_ADVICE",
+      "client": "CLNT031",
+      "expected_quarantine": false,
+      "reason": "filename matches the CLNT031 cash pattern and AGM-5590-01 is its account; CASH requires account, amount, currency, all present"
+    },
+    {
+      "path": "10_unattributable/export_final.csv",
+      "origin": "scenario:unattributable_file",
+      "sha256": "dd3d3a5bfc585c4ac781bac547498ce9021cdd5ed6fef702959285c777676f7f",
+      "layout": "OPAQUE_EXPORT",
+      "client": null,
+      "expected_quarantine": true,
+      "reason": "no filename pattern and no known account identifier; nothing may be routed without a client"
+    },
+    {
+      "path": "11_awkward_workbook/HF_Custody_Positions_28Aug2026.xlsx",
+      "origin": "scenario:awkward_workbook",
+      "sha256": null,
+      "layout": "LSEG_CUSTODY_WORKBOOK",
+      "client": "CLNT047",
+      "expected_quarantine": true,
+      "reason": "filename names a POSITION file; POSITION requires market_value and the workbook carries prices only, so it must be held for review"
+    },
+    {
+      "path": "12_preamble_totals/PRS_trd_20260828.csv",
+      "origin": "scenario:totals_row_and_preamble",
+      "sha256": "232b5fc4aeba0787a0ca4ee825b2e100e64a5476b8da6b88e7e198aa8c869675",
+      "layout": "HKEX_TRADES",
+      "client": "CLNT023",
+      "expected_quarantine": false,
+      "reason": "filename and HK-4471-0021 both name CLNT023; TRADE fields all present"
+    },
+    {
+      "path": "ext/NGAM_20260828_TRADES.xml",
+      "origin": "bench:eurex_xml",
+      "sha256": "fbd0198d8dd9f8921d799a3e644118e5e78245d4f64a880cba71b794708f00b6",
+      "layout": "EUREX_XML",
+      "client": "CLNT011",
+      "expected_quarantine": false,
+      "reason": "NGAM filename pattern and DE-77120 accounts name CLNT011; TRADE fields all present"
+    },
+    {
+      "path": "ext/NGAM_20260828_TRADES.fixml",
+      "origin": "bench:eurex_fixml",
+      "sha256": "fc76c11b2a43ddfe37fc168a245f39346c8e5b602cf95875c713aaacac9e8f7c",
+      "layout": "FIXML_EXEC_REPORTS",
+      "client": "CLNT011",
+      "expected_quarantine": false,
+      "reason": "same trades as the XML in FIX tag names; Pty R=24 carries the account"
+    },
+    {
+      "path": "ext/ardent-trades-2026-08-28.json",
+      "origin": "bench:queue_json",
+      "sha256": "ac9d9ba4bcd296c5584e57e6f99264adee5d57abd3b45e67b45ed5e04f79514e",
+      "layout": "JSON_TRADE_EXTRACT",
+      "client": "CLNT031",
+      "expected_quarantine": false,
+      "reason": "no filename pattern; account.id AGM-5590-01 identifies CLNT031, whose single expectation is CASH: account, amount and currency are all present"
+    },
+    {
+      "path": "ext/SABLE_20260828_OPT.csv",
+      "origin": "bench:cboe_positions",
+      "sha256": "fb4526b839816e0193999d3f88ce3e2c5dc73e4d16d8d74c2c9fd1bd91313a39",
+      "layout": "CBOE_OPTIONS",
+      "client": "CLNT058",
+      "expected_quarantine": false,
+      "reason": "SABLE pattern and SRT-9902 name CLNT058; POSITION requires account, instrument, quantity, settlement price and market value, all present"
+    },
+    {
+      "path": "ext/PRS_pos_20260828.csv",
+      "origin": "bench:nasdaq_as_positions",
+      "sha256": "540126032383fd3e5ea3fb80cace009cebeed3607c0a0dc2cae5ff7faf0e8c6d",
+      "layout": "NASDAQ_TRADES",
+      "client": "CLNT023",
+      "expected_quarantine": true,
+      "reason": "filename declares a POSITION file but the contents are a trade extract with no market value; a required field is missing so it must be held"
+    }
+  ]
+}

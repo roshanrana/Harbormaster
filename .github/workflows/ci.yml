@@ -48,3 +48,15 @@ jobs:
         env:
           # No API key. The gate must pass with the deterministic adjudicator.
           HM_ADJUDICATOR: fake
+
+      # The results card reads metrics/headline.json. It is regenerated on
+      # every push from the same offline replay a developer runs, so a number
+      # on the card is always one this pipeline observed.
+      - name: make bench
+        run: make bench
+        env:
+          HM_ADJUDICATOR: fake
+
+      - name: Report headline drift
+        run: |
+          git diff --exit-code -- metrics/headline.json             || echo "::warning::metrics/headline.json differs from the committed numbers; run make bench and commit"
