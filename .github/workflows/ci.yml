@@ -60,3 +60,6 @@ jobs:
       - name: Report headline drift
         run: |
           git diff --exit-code -- metrics/headline.json             || echo "::warning::metrics/headline.json differs from the committed numbers; run make bench and commit"
+
+      - name: README results card is current
+        run: make card-check

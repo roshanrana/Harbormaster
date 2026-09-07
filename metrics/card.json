@@ -1,0 +1,13 @@
+{
+  "title": "Harbormaster onboarding bench",
+  "subtitle": "Nineteen sha256-pinned source files replayed through the mapping ladder and scored against a hand-labelled key.",
+  "make_target": "make bench",
+  "kpi_order": [
+    "mapping_accuracy",
+    "no_model_share",
+    "tier3_escalations",
+    "quarantine_precision",
+    "quarantine_recall",
+    "tamper_check"
+  ]
+}

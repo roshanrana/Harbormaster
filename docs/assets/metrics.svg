@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="548" viewBox="0 0 920 548" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="Harbormaster onboarding bench results card">
+<rect width="920" height="548" rx="16" fill="#0f172a"/>
+<text x="28" y="48" font-size="22" font-weight="700" fill="#e2e8f0">Harbormaster onboarding bench</text>
+<text x="28" y="70" font-size="13" fill="#94a3b8">Nineteen sha256-pinned source files replayed through the mapping ladder and scored against a hand-labelled key.</text>
+<rect x="28.0" y="90" width="278.7" height="92" rx="10" fill="#1e293b"/>
+<rect x="28.0" y="90" width="4" height="92" rx="2" fill="#2dd4bf"/>
+<text x="44.0" y="114" font-size="12" fill="#94a3b8">Field-mapping accuracy</text>
+<text x="44.0" y="146" font-size="26" font-weight="700" fill="#2dd4bf">97.7%</text>
+<text x="44.0" y="168" font-size="10.5" fill="#94a3b8">209/214 labelled columns across 19 files, agains…</text>
+<rect x="320.7" y="90" width="278.7" height="92" rx="10" fill="#1e293b"/>
+<rect x="320.7" y="90" width="4" height="92" rx="2" fill="#60a5fa"/>
+<text x="336.7" y="114" font-size="12" fill="#94a3b8">Resolved without a model</text>
+<text x="336.7" y="146" font-size="26" font-weight="700" fill="#60a5fa">80.8%</text>
+<text x="336.7" y="168" font-size="10.5" fill="#94a3b8">alias, structural, fuzzy and promoted overrides:…</text>
+<rect x="613.3" y="90" width="278.7" height="92" rx="10" fill="#1e293b"/>
+<rect x="613.3" y="90" width="4" height="92" rx="2" fill="#a78bfa"/>
+<text x="629.3" y="114" font-size="12" fill="#94a3b8">Columns escalated to Tier 3</text>
+<text x="629.3" y="146" font-size="26" font-weight="700" fill="#a78bfa">41</text>
+<text x="629.3" y="168" font-size="10.5" fill="#94a3b8">18 adjudication calls; stand-in answered 5, cach…</text>
+<rect x="28.0" y="196" width="278.7" height="92" rx="10" fill="#1e293b"/>
+<rect x="28.0" y="196" width="4" height="92" rx="2" fill="#fbbf24"/>
+<text x="44.0" y="220" font-size="12" fill="#94a3b8">Quarantine precision</text>
+<text x="44.0" y="252" font-size="26" font-weight="700" fill="#fbbf24">100.0%</text>
+<text x="44.0" y="274" font-size="10.5" fill="#94a3b8">2 held correctly, 0 held needlessly, of 21 class…</text>
+<rect x="320.7" y="196" width="278.7" height="92" rx="10" fill="#1e293b"/>
+<rect x="320.7" y="196" width="4" height="92" rx="2" fill="#fbbf24"/>
+<text x="336.7" y="220" font-size="12" fill="#94a3b8">Quarantine recall</text>
+<text x="336.7" y="252" font-size="26" font-weight="700" fill="#fbbf24">66.7%</text>
+<text x="336.7" y="274" font-size="10.5" fill="#94a3b8">2 of 3 files that should be held were held; 1 sl…</text>
+<rect x="613.3" y="196" width="278.7" height="92" rx="10" fill="#1e293b"/>
+<rect x="613.3" y="196" width="4" height="92" rx="2" fill="#2dd4bf"/>
+<text x="629.3" y="220" font-size="12" fill="#94a3b8">Hash-chain tamper check</text>
+<text x="629.3" y="252" font-size="26" font-weight="700" fill="#2dd4bf">detected, fail-closed</text>
+<text x="629.3" y="274" font-size="10.5" fill="#94a3b8">edited outcome caught at record 2; deleted recor…</text>
+<text x="28" y="326" font-size="13" font-weight="600" fill="#e2e8f0">Columns resolved per ladder tier</text>
+<text x="28" y="359.0" font-size="12" fill="#e2e8f0">Tier 1: alias dictionary</text>
+<rect x="328" y="349.0" width="414" height="12" rx="6" fill="#334155"/>
+<rect x="328" y="349.0" width="309.5" height="12" rx="6" fill="#2dd4bf"/>
+<text x="754" y="359.0" font-size="12" fill="#94a3b8">160/214 (74.8%)</text>
+<text x="28" y="389.0" font-size="12" fill="#e2e8f0">Tier 1: structural price rule</text>
+<rect x="328" y="379.0" width="414" height="12" rx="6" fill="#334155"/>
+<rect x="328" y="379.0" width="7.7" height="12" rx="6" fill="#2dd4bf"/>
+<text x="754" y="389.0" font-size="12" fill="#94a3b8">4/214 (1.9%)</text>
+<text x="28" y="419.0" font-size="12" fill="#e2e8f0">Tier 2: fuzzy match</text>
+<rect x="328" y="409.0" width="414" height="12" rx="6" fill="#334155"/>
+<rect x="328" y="409.0" width="15.5" height="12" rx="6" fill="#60a5fa"/>
+<text x="754" y="419.0" font-size="12" fill="#94a3b8">8/214 (3.7%)</text>
+<text x="28" y="449.0" font-size="12" fill="#e2e8f0">Client override (promoted)</text>
+<rect x="328" y="439.0" width="414" height="12" rx="6" fill="#334155"/>
+<rect x="328" y="439.0" width="6.0" height="12" rx="6" fill="#60a5fa"/>
+<text x="754" y="449.0" font-size="12" fill="#94a3b8">1/214 (0.5%)</text>
+<text x="28" y="479.0" font-size="12" fill="#e2e8f0">Tier 3: model (deterministic fake)</text>
+<rect x="328" y="469.0" width="414" height="12" rx="6" fill="#334155"/>
+<rect x="328" y="469.0" width="9.7" height="12" rx="6" fill="#a78bfa"/>
+<text x="754" y="479.0" font-size="12" fill="#94a3b8">5/214 (2.3%)</text>
+<text x="28" y="509.0" font-size="12" fill="#e2e8f0">Unresolved (declined)</text>
+<rect x="328" y="499.0" width="414" height="12" rx="6" fill="#334155"/>
+<rect x="328" y="499.0" width="69.6" height="12" rx="6" fill="#fbbf24"/>
+<text x="754" y="509.0" font-size="12" fill="#94a3b8">36/214 (16.8%)</text>
+<text x="28" y="538" font-size="11" fill="#94a3b8">Observed and pending: 5 of 9 rows observed offline; the rest are marked pending or not claimed in README.md. Generated by metrics/render.py from metrics/headline.json.</text>
+</svg>

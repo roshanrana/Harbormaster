@@ -13,6 +13,50 @@ Intelligent file-arrival control for financial reconciliation.
 | **Stack** | Go services, Python inference/parsing layer, Protobuf contracts, Kafka/Redpanda-compatible topics, Postgres read models, Docker Compose, embedded Go templates, HTMX, deterministic corpus generation. |
 | **Validation** | Go unit/contract tests and `go vet`; Python ruff/mypy/pytest; 17 named adversarial scenario tests; cross-language protobuf and masking parity checks; documented Docker, e2e, audit, and live-model gates. |
 
+<!-- metrics:start -->
+
+## Results
+
+<img src="docs/assets/metrics.svg" alt="Results card" width="920">
+
+Every figure below was observed by `make bench`, which runs offline with a fixed seed and no API key, and writes `metrics/headline.json`. Nineteen sha256-pinned source files replayed through the mapping ladder and scored against a hand-labelled key. Rows marked *pending* need hardware, data or a service the offline harness does not have; nothing here is estimated.
+
+| Metric | Value | How it was measured |
+|---|---|---|
+| Field-mapping accuracy | **97.7%** | 209/214 labelled columns across 19 files, against bench/golden |
+| Resolved without a model | **80.8%** | alias, structural, fuzzy and promoted overrides: 173/214 columns |
+| Columns escalated to Tier 3 | **41** | 18 adjudication calls; stand-in answered 5, cache replayed 0; not a live-model accuracy |
+| Quarantine precision | **100.0%** | 2 held correctly, 0 held needlessly, of 21 classifications |
+| Quarantine recall | **66.7%** | 2 of 3 files that should be held were held; 1 slipped through |
+| Hash-chain tamper check | **detected, fail-closed** | edited outcome caught at record 2; deleted record caught at record 2 |
+
+**Columns resolved per ladder tier**
+
+| | | |
+|---|---|---|
+| Tier 1: alias dictionary | `███████████████░░░░░` | 160/214 (74.8%) |
+| Tier 1: structural price rule | `░░░░░░░░░░░░░░░░░░░░` | 4/214 (1.9%) |
+| Tier 2: fuzzy match | `█░░░░░░░░░░░░░░░░░░░` | 8/214 (3.7%) |
+| Client override (promoted) | `░░░░░░░░░░░░░░░░░░░░` | 1/214 (0.5%) |
+| Tier 3: model (deterministic fake) | `░░░░░░░░░░░░░░░░░░░░` | 5/214 (2.3%) |
+| Unresolved (declined) | `███░░░░░░░░░░░░░░░░░` | 36/214 (16.8%) |
+
+**Observed and pending**
+
+| | Status | Evidence |
+|---|---|---|
+| Fixed source set | observed | 19 files, 21 classifications, seed 20260831, sha256-pinned |
+| Golden labels | observed | 214 column labels, 21 disposition labels, hand-derived |
+| Per-tier accuracy | observed | alias 160/160 (100.0%), structural 4/4 (100.0%), fuzzy 6/8 (75.0%), override 1/1 (100.0%), llm 3/5 (60.0%), unresolved 35/36 (97.2%) |
+| Model-resolved columns | observed | 5 by the deterministic fake or its cache; 0 cache replays |
+| Hash-chain tamper check | observed | detected, fail-closed: edited outcome caught at record 2; deleted record caught at record 2 |
+| Tier 2 semantic matcher | pending | fuzzy-only; fastembed not installed, so the embedding path did not run |
+| Live model (Claude) mapping accuracy | pending | not measured offline; needs ANTHROPIC_API_KEY and HM_LIVE=1 make test-live |
+| Duplicate and redelivery suppression | pending | not measured here; Portwatch dedupe is asserted against Postgres (make test-store) |
+| Throughput and p95 latency (NFR-2) | pending | not measured; needs the running stack (make up) |
+
+<!-- metrics:end -->
+
 ---
 
 ## The problem

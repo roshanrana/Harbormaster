@@ -86,6 +86,14 @@ test-live: ## Opt-in test against the real Anthropic API (needs ANTHROPIC_API_KE
 bench: ## Replay the fixed source set through onboarding; write metrics/headline.json
 	$(PY) python ../bench/onboard.py --out ../metrics/headline.json
 
+.PHONY: card
+card: bench ## Render docs/assets/metrics.svg and the README results block from headline.json
+	$(PY) python ../metrics/render.py
+
+.PHONY: card-check
+card-check: ## Fail if the README card is stale relative to metrics/headline.json
+	$(PY) python ../metrics/render.py --check
+
 # ---------------------------------------------------------------------------
 # Runtime. Requires Docker; not exercisable in the build container (ADR-018).
 # ---------------------------------------------------------------------------
