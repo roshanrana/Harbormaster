@@ -19,3 +19,7 @@ logs/
 
 # Env
 .env
+
+# Codebase graph (graphify) — report is committed, the rest is derived
+graphify-out/*
+!graphify-out/GRAPH_REPORT.md

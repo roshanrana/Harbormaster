@@ -247,6 +247,7 @@ that says what broke.
 |---|---|
 | [Overview](docs/OVERVIEW.md) | The setting, the three hard problems, the mapping ladder, what is measured |
 | [Showcase](docs/SHOWCASE.md) | A guided tour of every feature, with commands and files |
+| [Codebase graph](docs/graph/README.md) | Query the code with `graphify` instead of grepping it: `explain`, `path`, `affected` |
 | [Requirements](docs/design/01-requirements.md) | 42 functional and 12 measurable non-functional requirements |
 | [High-level design](docs/design/02-hld.md) | Architecture, component split, tech-stack rationale |
 | [Low-level design](docs/design/03-lld.md) | Frozen contracts, schemas, error taxonomy, test strategy |

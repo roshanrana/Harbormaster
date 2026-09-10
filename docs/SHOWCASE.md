@@ -94,6 +94,22 @@ Embedded Go templates and HTMX over Postgres read models projected from the topi
 
 `generate.py` produces the corpus deterministically; `test_corpus_generation_is_reproducible` asserts byte-identical output from the same seed. `scenarios.py` defines the twelve adversarial fixtures, and `test_every_scenario_documents_what_it_breaks` refuses a fixture without a stated purpose.
 
+## Query the code graph
+
+The repository carries an offline code knowledge graph (`graphify`, tree-sitter
+AST, no LLM): 2377 nodes, 4996 edges, 154 communities, rebuilt in ~9 seconds
+with `graphify update .`. Instead of grepping, ask it directly:
+
+```bash
+graphify explain "TieredResolver"                       # what a class connects to
+graphify path "scanner.go" "audit.go"                    # ingress to the audit chain
+graphify affected "mapping_resolver_tieredresolver" --depth 2   # blast radius before a change
+```
+
+Full write-up, real query output, and what is deliberately excluded (generated
+protobuf bindings, the virtualenv, caches) is in
+[`docs/graph/README.md`](graph/README.md).
+
 ## Things worth noticing
 
 - **Model dependence falls over time.** Template caching plus promotion into configuration means the second file with a known layout costs zero model calls, and that is asserted rather than hoped: `test_correctness_targets_across_the_corpus`.

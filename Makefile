@@ -133,3 +133,11 @@ migrate: ## Apply database migrations
 .PHONY: clean
 clean: ## Remove build and runtime artefacts
 	rm -rf data logs go/bin python/.venv
+
+# ---------------------------------------------------------------------------
+# Codebase graph. Offline, no API key; derived output is gitignored except
+# GRAPH_REPORT.md. Not part of `check` — the graph is derived, not a test.
+# ---------------------------------------------------------------------------
+.PHONY: graph
+graph: ## Rebuild the graphify code graph (see docs/graph/README.md)
+	graphify update . && graphify cluster-only . --no-viz --no-label
