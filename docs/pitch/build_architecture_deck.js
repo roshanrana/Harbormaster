@@ -204,12 +204,13 @@ function caption(s, text, x, y, w) {
     "Each tier sees only what the previous one declined; a column T1 resolved is never re-litigated by a model",
     "Results are cached by template fingerprint — the second file with a known layout costs nothing",
     "A reviewer can promote a confirmed T3 decision into the client's T1 dictionary; it resolves at T1 forever after",
-  ], 0.65, 3.5, 4.3, 1.3, 9, ICE);
+    "Measured, not hoped: the second file with a known layout costs zero adjudications, asserted in test_correctness_targets_across_the_corpus, not claimed in prose",
+  ], 0.65, 3.05, 4.3, 1.7, 9, ICE);
   const badges = [["Structure over vocabulary", "settlement/mark/prior-settlement repeat per instrument-day; trade price varies per row — resolved by that shape, not the header text", MINT], ["Provenance on every field", "each dispatched mapping carries a tier and non-empty evidence string; a mapping with no provenance is a defect", GOLD], ["Decline over guess", "a wrong mapping breaks reconciliation silently; unresolved becomes a review item instead", RED]];
+  const gap = 0.15, cardH = (3.55 - 2 * gap) / 3;
   badges.forEach((b, i) => {
-    box(s, 5.4, 1.3 + i * 1.22, 4.1, 1.12, b[0], b[1], { bs: 9, tcol: b[2] === RED ? RED : NAVY });
+    box(s, 5.4, 1.3 + i * (cardH + gap), 4.1, cardH, b[0], b[1], { bs: 9, tcol: b[2] === RED ? RED : NAVY });
   });
-  box(s, 5.4, 4.0, 4.1, 0.85, "Measured, not hoped", "Second file with a known layout costs zero adjudications — asserted in test_correctness_targets_across_the_corpus, not claimed in prose.", { bs: 9 });
 }
 
 // ---------- 9 Data architecture
@@ -323,20 +324,20 @@ function caption(s, text, x, y, w) {
 // ---------- 19 Quality metrics (native chart)
 {
   const s = base("Quality metrics from the bench and the gate", "Enterprise readiness · measurement");
-  s.addChart(pres.charts.BAR, [{ name: "Value", labels: ["Field-mapping accuracy", "Resolved w/o a model", "Quarantine precision", "Quarantine recall", "Tests passing (÷400)"], values: [0.977, 0.808, 1.0, 0.667, 0.87] }], {
+  s.addChart(pres.charts.BAR, [{ name: "Value", labels: ["Field-mapping accuracy", "Resolved w/o a model", "Quarantine precision", "Quarantine recall"], values: [0.977, 0.808, 1.0, 0.667] }], {
     x: 0.5, y: 1.3, w: 5.2, h: 3.5, barDir: "bar", chartColors: [MINT], showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "0.00", dataLabelFontSize: 9, dataLabelColor: INK,
     catAxisLabelColor: INK, catAxisLabelFontSize: 9, valAxisLabelColor: MUTED, valAxisLabelFontSize: 8, valAxisMinVal: 0, valAxisMaxVal: 1.1, valGridLine: { color: LINE, size: 0.5 }, catGridLine: { style: "none" }, showLegend: false, showTitle: true, title: "Ratios (1.0 = target met)", titleFontSize: 10, titleColor: NAVY,
   });
   table(s, [
     ["KPI", "Value", "Target"],
-    ["Field-mapping accuracy", "97.7% (209/214 columns, 19 files)", "n/a, headline"],
-    ["Resolved without a model", "80.8% (173/214)", "n/a, headline"],
-    ["Columns escalated to Tier 3", "41 (18 adjudication calls)", "≤2% once warm (NFR-8)"],
-    ["Quarantine precision / recall", "100.0% / 66.7%", "n/a; recall is an honest miss"],
+    ["Field-mapping accuracy", "97.7% (209/214, 19 files)", "headline"],
+    ["Resolved without a model", "80.8% (173/214)", "headline"],
+    ["Columns escalated to Tier 3", "41 (18 calls)", "≤2% warm (NFR-8)"],
+    ["Quarantine precision / recall", "100.0% / 66.7%", "honest miss"],
     ["Hash-chain tamper check", "detected, fail-closed", "must fail closed"],
-    ["Tests today (this run)", "347 passed / 399 collected, 0 failed", "offline, no network"],
+    ["Tests today (this run)", "347 passed, 47 skipped without Postgres, 0 failed", "offline, no net"],
     ["make check (minus proto-check)", "green in this run", "green offline"],
-  ], 5.9, 1.3, 3.6, [1.9, 1.1, 0.6], 7.5);
+  ], 5.9, 1.3, 3.6, [1.5, 1.3, 0.8], 7.5);
   s.addText("Quarantine recall (66.7%) is shown as measured, not smoothed: one of three files that should have been held slipped through in this corpus — see Quirks. Tier-3 escalation count is against a deterministic stand-in, not a live model.", { x: 0.5, y: 4.9, w: 9, h: 0.35, fontFace: BF, fontSize: 9, italic: true, color: MUTED, isTextBox: true, margin: 0 });
 }
 
